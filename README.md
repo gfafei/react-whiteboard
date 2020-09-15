@@ -1,3 +1,9 @@
-# react-from-scratch
+## react-whiteboard
+基于canvas的多人写作白板
 
-This is a project which aims at understanding what does create-react-app do for us.
+## TODO
+- [ ] 支持删除 
+- [ ] shape插件化
+- [ ] 前后端打通
+- [ ] 移动端适配
+- [ ] undo redo clear

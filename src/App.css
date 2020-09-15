@@ -1,3 +1,22 @@
-.App {
-    margin: 1rem;
+body {
+    margin: 0;
+}
+.whiteboard {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.menu-wrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 10px;
+    margin: auto;
+    text-align: center;
+    width: 500px;
+    display: flex;
+    justify-content: center;
 }
