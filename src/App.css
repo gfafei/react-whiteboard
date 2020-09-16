@@ -16,7 +16,34 @@ body {
     top: 10px;
     margin: auto;
     text-align: center;
-    width: 500px;
     display: flex;
     justify-content: center;
+
+    background-color: rgba(29,35,42,0.9);
+    border: 1px solid #000000;
+    border-radius: 4px;
+    box-shadow: 0 2px 20px 0 rgba(0,0,0,0.30);
+}
+.menu-item {
+    white-space: nowrap;
+    padding: 5px 0;
+    min-width: 55px;
+    cursor: default;
+    color: #fff;
+}
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, .1);
+}
+.menu-item.active {
+    color: #01BDE8;
+}
+.menu-item .icon {
+    display: block;
+    font-size: 24px;
+    line-height: 1;
+}
+.menu-item .tool-name {
+    display: block;
+    color: rgba(255,255,255,0.60);
+    font-size: 12px;
 }
