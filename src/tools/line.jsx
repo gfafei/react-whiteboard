@@ -19,7 +19,7 @@ class Line extends Tool {
       mousePressed: false,
       points: []
     };
-    this.type = 'line';
+    this.name = 'Pencil';
     this.cursor = 'url("pencil.svg") 5 20, auto';
     this.icon = 'icon-note';
     this.label = 'Pencil';
@@ -61,6 +61,7 @@ class Line extends Tool {
 
   handleMouseDown(e) {
     const state = this.state;
+    this.curlineId = uuid();
     state.line.mousePressed = true;
     state.line.points.push({ x: e.clientX, y: e.clientY });
   }
@@ -73,6 +74,8 @@ class Line extends Tool {
     state.drawingContext.strokeStyle = state.color;
     state.drawingContext.lineWidth = state.size;
     this.drawLine(state.drawingContext, state.line.points);
+
+
   }
 
   handleMouseUp(e) {
@@ -85,7 +88,7 @@ class Line extends Tool {
     this.drawLine(state.mainContext, state.line.points)
     const line = {
       id: uuid(),
-      type: this.type,
+      tool: this.name,
       size: state.size,
       color: state.color,
       _children: state.line.points

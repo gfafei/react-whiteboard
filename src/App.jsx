@@ -4,9 +4,10 @@ import './iconfont.css';
 import Line from './tools/line';
 import Eraser from './tools/eraser';
 import clsx from 'clsx';
+import io from 'socket.io-client';
 
 const initialState = {
-  mousePressed: false,
+  boardName: 'anonymous',
   color: '#f00056',
   size: 5,
   points: [],
@@ -18,6 +19,7 @@ const initialState = {
   drawingContext: null,
   //选择命中区域的画布
   hitRegionContext: null,
+  socket: null
 }
 const canvasStyle = {
   position: 'absolute',
@@ -31,6 +33,26 @@ const App = () => {
   const stateRef = useRef(initialState);
   const state = stateRef.current;
   const [curTool, setTool] = useState(null);
+
+  const drawElement = (ele) => {
+    const tool = state.toolDic[ele.tool];
+    if (!tool) {
+      throw Error(`tool ${tool} does not exist`)
+    }
+    tool.draw(ele);
+  }
+
+  const handleMessage = (msg) => {
+    if (!msg.tool && !msg._children) {
+      console.error('Received a badly formatted message', msg)
+    }
+    if (msg.tool) {
+      drawElement(msg);
+    }
+    if (msg._children) {
+      msg._children.forEach(handleMessage)
+    }
+  }
 
   useEffect(() => {
     state.mainContext = mainLayerRef.current.getContext('2d');
@@ -50,10 +72,27 @@ const App = () => {
     hitRegionCtx.lineJoin = 'round';
     state.hitRegionContext = hitRegionCtx;
 
-    state.toolDic['line'] = new Line(state);
-    state.toolDic['eraser'] = new Eraser(state);
+    state.toolDic['Pencil'] = new Line(state);
+    state.toolDic['Eraser'] = new Eraser(state);
 
-    setTool('line');
+    setTool('Pencil');
+
+    const socket = io('localhost:8080');
+    socket.emit('getboard', state.boardName);
+    socket.on('broadcast', (msg) => {
+      console.log(msg)
+      msg._children.forEach(child => {
+        const tool = state.toolDic[child.tool];
+        if (tool) {
+          tool.draw(child)
+        }
+      })
+    })
+    socket.on('reconnect', () => {
+      console.log('reconnect')
+    })
+    state.socket = socket;
+
   }, []);
 
   useEffect(() => {
@@ -110,8 +149,8 @@ const App = () => {
       <div className="menu-wrapper" style={{ width: 110 }}>
         {
           Object.values(state.toolDic).map(tool => (
-            <div key={tool.type} className={clsx('menu-item', { active: curTool === tool.type })}
-                 onClick={() => setTool(tool.type)}
+            <div key={tool.name} className={clsx('menu-item', { active: curTool === tool.name })}
+                 onClick={() => setTool(tool.name)}
             >
               <i className={clsx('icon', tool.icon)}/>
               <span className="tool-name">{tool.label}</span>

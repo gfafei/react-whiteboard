@@ -15,6 +15,20 @@ class Tool {
     }
   }
 
+  send(data) {
+    const message = {
+      board: this.state.boardName,
+      data: data
+    }
+    this.state.socket.emit('broadcast', message);
+  }
+
+  drawAndSend(data) {
+    const tool = this.state.toolDic[data.tool];
+    tool.draw(data);
+    this.send(data);
+  }
+
   handleMouseDown() {}
 
   handleMouseMove() {}

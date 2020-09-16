@@ -9,7 +9,7 @@ class Eraser extends Tool {
   constructor(state) {
     super(state);
     this.state = state;
-    this.type = 'eraser';
+    this.name = 'Eraser';
     state.eraser = {
       mousePressed: false
     }
