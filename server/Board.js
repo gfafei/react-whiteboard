@@ -3,7 +3,7 @@ const config = require('../config');
 const Logger = require('./Logger');
 const logger = new Logger('db')
 
-mongoose.connect(config.db, { useNewUrlParser: true });
+mongoose.connect(config.db, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', logger.error);
 db.once('open', () => {

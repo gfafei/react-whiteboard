@@ -16,7 +16,7 @@ describe('socket', () => {
   })
 
   it('getBoard', (done) => {
-    socket.emit('getboard')
+    socket.emit('getBoard', 'anonymous111')
     socket.once('broadcast', data => {
       assert.ok(data.elements);
       done();

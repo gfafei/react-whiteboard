@@ -18,19 +18,20 @@ function noFail(fn) {
 }
 
 io.on('connection', socket => {
+  logger.info('connection')
   socket.on('error', noFail(error => {
     logger.error('ERROR', error)
   }))
   socket.on('broadcast', noFail(message => {
     //TODO
   }))
-  socket.on('getBoard', noFail(async name => {
-    //TODO
-    logger.debug('getBoard...')
-    console.log('...dfdsafdsafadsdf')
-    const board = Board.findByIdAndUpdate(name, { upsert: true, lean: true })
+  socket.on('getBoard',async name => {
+    let board = await Board.findById(name).exec();
+    if (!board) {
+      board = await Board.create({ _id: name })
+    }
     socket.emit('broadcast', board);
-  }))
+  })
 })
 
 if (!module.parent) {
