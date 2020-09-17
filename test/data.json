@@ -1,0 +1,28 @@
+{
+  "board1": {
+    "tk9wiab3ue": {
+      "type": "line",
+      "id": "tk9wiab3ue",
+      "color": "#FE0000",
+      "size": 3,
+      "tool": "Pencil",
+      "points": [{
+        "x": 0,
+        "y": 0
+      }]
+    }
+  },
+  "board2": {
+    "tk9wiab3ud": {
+      "type": "line",
+      "id": "tk9wiab3ue",
+      "color": "#FE0000",
+      "size": 3,
+      "tool": "Pencil",
+      "points": [{
+        "x": 0,
+        "y": 0
+      }]
+    }
+  }
+}

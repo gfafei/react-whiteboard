@@ -7,3 +7,4 @@
 - [ ] 前后端打通
 - [ ] 移动端适配
 - [ ] undo redo clear
+- [ ] 补全shape
