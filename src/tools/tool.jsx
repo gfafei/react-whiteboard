@@ -1,5 +1,5 @@
 import { getRandomColor } from '../utils'
-
+let count = 0;
 class Tool {
   constructor (state) {
     this.state = state;
@@ -16,11 +16,11 @@ class Tool {
   }
 
   send(data) {
-    const message = {
-      board: this.state.boardName,
-      data: data
-    }
-    this.state.socket.emit('broadcast', message);
+    // const message = {
+    //   board: this.state.boardName,
+    //   data: data
+    // }
+    // this.state.socket.emit('broadcast', message);
   }
 
   drawAndSend(data) {
@@ -36,8 +36,6 @@ class Tool {
   handleMouseUp() {}
 
   draw() {}
-
-  drawHitRegion() {}
 
 }
 

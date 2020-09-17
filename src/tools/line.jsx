@@ -3,74 +3,57 @@ import {
   uuid,
 } from '../utils';
 import Tool from './tool';
-
 let lastTime = 0;
+
 class Line extends Tool {
   constructor (state) {
     super(state)
+    state.points = [];
     this.name = 'Pencil';
     this.cursor = 'url("pencil.svg") 5 20, auto';
     this.icon = 'icon-note';
     this.label = 'Pencil';
   }
 
-  drawLine(lineId) {
-    const line = this.state.elements.get(lineId);
-    let ctx = this.state.context;
-    const points = line.points;
-    if (points.length < 2) return;
-    const p1 = points[points.length - 2];
-    const p2 = points[points.length - 1];
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y)
-    ctx.lineTo(p2.x, p2.y)
-    ctx.closePath();
-    ctx.lineWidth = line.size;
-    ctx.strokeStyle = line.color;
-    ctx.stroke();
-
-    ctx = this.state.hitRegionContext;
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y)
-    ctx.lineTo(p2.x, p2.y)
-    ctx.closePath();
-    ctx.lineWidth = line.size;
-    ctx.strokeStyle = line.colorKey;
-    ctx.stroke();
+  drawLine(line, startIdx = 0) {
+    const start = line.points[startIdx];
+    const stroke = (ctx, color) => {
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y)
+      for (let i = startIdx + 1; i < line.points.length; i++) {
+        const point = line.points[i];
+        ctx.lineTo(point.x, point.y);
+      }
+      ctx.lineWidth = line.size;
+      ctx.strokeStyle = color || line.color;
+      ctx.stroke();
+    }
+    stroke(this.state.context);
+    if (startIdx === 0) {
+      line.colorKey = this.getColorKey();
+      this.state.elements.set(line.id, line);
+      this.state.colorHash.set(line.colorKey, line.id);
+    }
+    stroke(this.state.hitRegionContext, line.colorKey);
   }
 
-  draw(line) {
-    let ctx = this.state.context;
-    const start = line.points[0];
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y)
-    for (let i = 1; i < line.points.length; i++) {
-      const point = line.points[i];
-      ctx.lineTo(point.x, point.y);
+  draw(data) {
+    switch(data.type) {
+      case 'line':
+        this.drawLine(data);
+        break;
+      case 'points':
+        const line = this.state.elements.get(data.parent);
+        if (!line) {
+          throw Error(`line with id ${data.parent} does not exist`)
+        }
+        const startIdx = line.points.length - 1;
+        line.points.push(...data.points);
+        this.drawLine(line, startIdx);
+        break;
+      default:
+        throw Error('unknown type')
     }
-    ctx.lineWidth = line.size;
-    ctx.strokeStyle = line.color;
-    ctx.stroke();
-
-    ctx = this.state.hitRegionContext;
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y)
-    for (let i = 1; i < line.points.length; i++) {
-      const point = line.points[i];
-      ctx.lineTo(point.x, point.y);
-    }
-    ctx.lineWidth = line.size;
-    ctx.strokeStyle = line.colorKey;
-    ctx.stroke();
-  }
-
-  addPoint(lineId, point) {
-    const line = this.state.elements.get(this.curLineId);
-    if (!line) {
-      throw Error(`line with id ${this.curLineId} does not exist`)
-    }
-    line.points.push(point);
-    this.drawLine(this.curLineId);
   }
 
   handleMouseDown(e) {
@@ -85,17 +68,34 @@ class Line extends Tool {
       size: state.size,
       points: [{ x: e.clientX, y: e.clientY }],
     }
-    state.colorHash.set(line.colorKey, line.id)
-    state.elements.set(this.curLineId, line);
+    this.drawAndSend(line);
   }
 
   handleMouseMove(e) {
-    lastTime = performance.now()
-    this.addPoint(this.curLineId, { x: e.clientX, y: e.clientY });
+    this.state.points.push({ x: e.clientX, y: e.clientY });
+    if (performance.now() - lastTime > 70) {
+      const data = {
+        tool: this.name,
+        type: 'points',
+        parent: this.curLineId,
+        points: this.state.points
+      }
+      this.drawAndSend(data)
+      this.state.points = [];
+      lastTime = performance.now();
+    }
   }
 
   handleMouseUp(e) {
-    this.addPoint(this.curLineId, { x: e.clientX, y: e.clientY });
+    this.state.points.push({ x: e.clientX, y: e.clientY });
+    const point = {
+      tool: this.name,
+      type: 'points',
+      parent: this.curLineId,
+      points: this.state.points
+    }
+    this.drawAndSend(point);
+    this.state.points = [];
   }
 }
 
