@@ -1,101 +1,101 @@
 import React from 'react';
 import {
   uuid,
-  clearCanvas,
 } from '../utils';
-import Tool from './tool'
+import Tool from './tool';
 
-function midPointBtw(p1, p2) {
-  return {
-    x: p1.x + (p2.x - p1.x) / 2,
-    y: p1.y + (p2.y - p1.y) / 2
-  };
-}
-
+let lastTime = 0;
 class Line extends Tool {
   constructor (state) {
     super(state)
-    state.line = {
-      mousePressed: false,
-      points: []
-    };
     this.name = 'Pencil';
     this.cursor = 'url("pencil.svg") 5 20, auto';
     this.icon = 'icon-note';
     this.label = 'Pencil';
   }
 
-  //TODO remove param points
-  drawLine(ctx, points) {
-    let p1 = points[0];
-    let p2 = points[1];
+  drawLine(lineId) {
+    const line = this.state.elements.get(lineId);
+    let ctx = this.state.context;
+    const points = line.points;
+    if (points.length < 2) return;
+    const p1 = points[points.length - 2];
+    const p2 = points[points.length - 1];
     ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    for (let i = 1; i < points.length; i++) {
-      const midPoint = midPointBtw(p1, p2)
-      ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
-      p1 = points[i];
-      p2 = points[i + 1];
-    }
-    ctx.lineTo(p1.x, p1.y);
-    ctx.stroke();
+    ctx.moveTo(p1.x, p1.y)
+    ctx.lineTo(p2.x, p2.y)
     ctx.closePath();
+    ctx.lineWidth = line.size;
+    ctx.strokeStyle = line.color;
+    ctx.stroke();
+
+    ctx = this.state.hitRegionContext;
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y)
+    ctx.lineTo(p2.x, p2.y)
+    ctx.closePath();
+    ctx.lineWidth = line.size;
+    ctx.strokeStyle = line.colorKey;
+    ctx.stroke();
   }
 
   draw(line) {
-    const ctx = this.state.mainContext;
-    ctx.strokeStyle = line.color;
+    let ctx = this.state.context;
+    const start = line.points[0];
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y)
+    for (let i = 1; i < line.points.length; i++) {
+      const point = line.points[i];
+      ctx.lineTo(point.x, point.y);
+    }
     ctx.lineWidth = line.size;
-    this.drawLine(ctx, line._children)
+    ctx.strokeStyle = line.color;
+    ctx.stroke();
+
+    ctx = this.state.hitRegionContext;
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y)
+    for (let i = 1; i < line.points.length; i++) {
+      const point = line.points[i];
+      ctx.lineTo(point.x, point.y);
+    }
+    ctx.lineWidth = line.size;
+    ctx.strokeStyle = line.colorKey;
+    ctx.stroke();
   }
 
-  drawHitRegion(line) {
-    const ctx = this.state.hitRegionContext;
-    const state = this.state;
-    const colorKey = this.getColorKey()
-    state.colorHash[colorKey] = line.id;
-    ctx.strokeStyle = colorKey;
-    ctx.lineWidth = line.size;
-    this.drawLine(ctx, line._children)
+  addPoint(lineId, point) {
+    const line = this.state.elements.get(this.curLineId);
+    if (!line) {
+      throw Error(`line with id ${this.curLineId} does not exist`)
+    }
+    line.points.push(point);
+    this.drawLine(this.curLineId);
   }
 
   handleMouseDown(e) {
     const state = this.state;
-    this.curlineId = uuid();
-    state.line.mousePressed = true;
-    state.line.points.push({ x: e.clientX, y: e.clientY });
+    this.curLineId = uuid();
+    const line = {
+      tool: this.name,
+      type: 'line',
+      id: this.curLineId,
+      color: state.color,
+      colorKey: this.getColorKey(),
+      size: state.size,
+      points: [{ x: e.clientX, y: e.clientY }],
+    }
+    state.colorHash.set(line.colorKey, line.id)
+    state.elements.set(this.curLineId, line);
   }
 
   handleMouseMove(e) {
-    const state = this.state;
-    if (!state.line.mousePressed) return;
-    clearCanvas(state.drawingContext);
-    state.line.points.push({ x: e.clientX, y: e.clientY });
-    state.drawingContext.strokeStyle = state.color;
-    state.drawingContext.lineWidth = state.size;
-    this.drawLine(state.drawingContext, state.line.points);
-
-
+    lastTime = performance.now()
+    this.addPoint(this.curLineId, { x: e.clientX, y: e.clientY });
   }
 
   handleMouseUp(e) {
-    const state = this.state;
-    clearCanvas(state.drawingContext);
-    state.line.mousePressed = false;
-    if (state.line.points.length < 2) return;
-    state.mainContext.strokeStyle = state.color;
-    state.mainContext.lineWidth = state.size;
-    this.drawLine(state.mainContext, state.line.points)
-    const line = {
-      id: uuid(),
-      tool: this.name,
-      size: state.size,
-      color: state.color,
-      _children: state.line.points
-    }
-    state.elements.set(line.id, line)
-    this.drawHitRegion(line);
-    state.line.points = [];
+    this.addPoint(this.curLineId, { x: e.clientX, y: e.clientY });
   }
 }
 

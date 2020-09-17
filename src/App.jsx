@@ -13,22 +13,15 @@ const initialState = {
   points: [],
   toolDic: {},
   elements: new Map(),
+  mousePressed: false,
   //主画布
-  mainContext: null,
-  //正在绘制的画布
-  drawingContext: null,
+  context: null,
   //选择命中区域的画布
   hitRegionContext: null,
   socket: null
 }
-const canvasStyle = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-}
 
 const App = () => {
-  const canvasRef = useRef(null)
   const mainLayerRef = useRef(null)
   const stateRef = useRef(initialState);
   const state = stateRef.current;
@@ -55,17 +48,15 @@ const App = () => {
   }
 
   useEffect(() => {
-    state.mainContext = mainLayerRef.current.getContext('2d');
-    state.drawingContext =  canvasRef.current.getContext('2d');
+    state.context = mainLayerRef.current.getContext('2d');
 
-    const ctx = state.drawingContext;
-    const mainCtx = state.mainContext;
-    ctx.lineJoin = mainCtx.strokeStyle = 'round';
-    ctx.lineCap = mainCtx.lineCap = 'round';
+    const mainCtx = state.context;
+    mainCtx.lineCap = 'round';
+    mainCtx.lineJoin = 'round';
 
     const hitRegion = document.createElement('canvas')
-    hitRegion.width = ctx.canvas.width;
-    hitRegion.height = ctx.canvas.height;
+    hitRegion.width = mainCtx.canvas.width;
+    hitRegion.height = mainCtx.canvas.height;
     const hitRegionCtx = hitRegion.getContext('2d');
     hitRegionCtx.lineWidth = state.size;
     hitRegionCtx.lineCap = 'round';
@@ -77,21 +68,21 @@ const App = () => {
 
     setTool('Pencil');
 
-    const socket = io('localhost:8080');
-    socket.emit('getboard', state.boardName);
-    socket.on('broadcast', (msg) => {
-      console.log(msg)
-      msg._children.forEach(child => {
-        const tool = state.toolDic[child.tool];
-        if (tool) {
-          tool.draw(child)
-        }
-      })
-    })
-    socket.on('reconnect', () => {
-      console.log('reconnect')
-    })
-    state.socket = socket;
+    // const socket = io('localhost:8080');
+    // socket.emit('getboard', state.boardName);
+    // socket.on('broadcast', (msg) => {
+    //   console.log(msg)
+    //   msg._children.forEach(child => {
+    //     const tool = state.toolDic[child.tool];
+    //     if (tool) {
+    //       tool.draw(child)
+    //     }
+    //   })
+    // })
+    // socket.on('reconnect', () => {
+    //   console.log('reconnect')
+    // })
+    // state.socket = socket;
 
   }, []);
 
@@ -99,7 +90,7 @@ const App = () => {
     const { toolDic } = state;
     if (!curTool) return;
     const tool = toolDic[curTool];
-    canvasRef.current.style.cursor = tool.cursor;
+    mainLayerRef.current.style.cursor = tool.cursor;
   }, [curTool])
 
   const handleMouseDown = (e) => {
@@ -108,11 +99,12 @@ const App = () => {
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
     }
+    state.mousePressed = true;
     tool.handleMouseDown(e)
   }
   const handleMouseMove = (e) => {
+    if (!state.mousePressed) return;
     const { toolDic } = state;
-    if (!curTool) return;
     const tool = toolDic[curTool];
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
@@ -121,30 +113,26 @@ const App = () => {
   }
 
   const handleMouseUp = (e) => {
+    if (!state.mousePressed) return;
     const { toolDic } = state;
     const tool = toolDic[curTool];
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
     }
+    state.mousePressed = false;
     tool.handleMouseUp(e)
   }
 
   return (
     <div className="whiteboard">
       <canvas
-        ref={canvasRef}
-        style={canvasStyle}
+        ref={mainLayerRef}
         width={window.innerWidth}
         height={window.innerHeight}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
-      />
-      <canvas
-        ref={mainLayerRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
       />
       <div className="menu-wrapper" style={{ width: 110 }}>
         {

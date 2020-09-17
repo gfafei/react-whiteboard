@@ -10,67 +10,40 @@ class Eraser extends Tool {
     super(state);
     this.state = state;
     this.name = 'Eraser';
-    state.eraser = {
-      mousePressed: false
-    }
-    state.colorHash = {};
+    state.colorHash = new Map();
     this.cursor = 'url("eraser.svg") 5 20, auto';
     this.icon = 'icon-eraser';
     this.label = 'Eraser';
   }
 
-  handleMouseDown(e) {
+  eraseElementByPoint(point) {
     const state = this.state;
-    const pos = {
-      x: e.clientX,
-      y: e.clientY
-    }
-    state.eraser.mousePressed = true;
-    const pixel = state.hitRegionContext?.getImageData(pos.x, pos.y, 1, 1).data;
+    const pixel = state.hitRegionContext.getImageData(point.x, point.y, 1, 1).data;
     const color = getColorFromPixel(pixel)
-    const id = state.colorHash[color];
+    const id = state.colorHash.get(color);
     if (!id) return;
     state.elements.delete(id);
-    state.colorHash = {};
-    clearCanvas(state.mainContext)
+    state.colorHash.delete(color);
+    clearCanvas(state.context);
+    clearCanvas(state.hitRegionContext);
     state.elements.forEach(element => {
-      const tool = state.toolDic[element.type]
+      const tool = state.toolDic[element.tool]
       if (!tool) {
-        throw Error(`tool ${element.type} does not exist`)
+        throw Error(`tool ${element.tool} does not exist`)
       }
       tool.draw(element);
     })
+  }
+
+  handleMouseDown(e) {
+    this.eraseElementByPoint({ x: e.clientX, y: e.clientY });
   }
 
   handleMouseMove(e) {
-    const state = this.state;
-    if (!state.eraser.mousePressed) return;
-    const pos = {
-      x: e.clientX,
-      y: e.clientY
-    }
-    const pixel = state.hitRegionContext?.getImageData(pos.x, pos.y, 1, 1).data;
-    const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
-    const id = state.colorHash[color];
-    if (!id) return;
-    state.elements.delete(id);
-    clearCanvas(state.mainContext);
-    clearCanvas(state.hitRegionContext);
-    state.colorHash = {};
-    state.elements.forEach(element => {
-      const tool = state.toolDic[element.type]
-      if (!tool) {
-        throw Error(`tool ${element.type} does not exist`)
-      }
-      tool.draw(element);
-      tool.drawHitRegion(element);
-    })
+    this.eraseElementByPoint({ x: e.clientX, y: e.clientY });
   }
 
-  handleMouseUp() {
-    const state = this.state;
-    state.eraser.mousePressed = false;
-  }
+  handleMouseUp() {}
 }
 
 export default Eraser;
