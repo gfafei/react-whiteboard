@@ -16,11 +16,11 @@ class Tool {
   }
 
   send(data) {
-    // const message = {
-    //   board: this.state.boardName,
-    //   data: data
-    // }
-    // this.state.socket.emit('broadcast', message);
+    const message = {
+      board: this.state.boardName,
+      data: data
+    }
+    this.state.socket.emit('broadcast', message);
   }
 
   drawAndSend(data) {

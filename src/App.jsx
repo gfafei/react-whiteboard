@@ -68,21 +68,27 @@ const App = () => {
 
     setTool('Pencil');
 
-    // const socket = io('localhost:8080');
-    // socket.emit('getboard', state.boardName);
-    // socket.on('broadcast', (msg) => {
-    //   console.log(msg)
-    //   msg._children.forEach(child => {
-    //     const tool = state.toolDic[child.tool];
-    //     if (tool) {
-    //       tool.draw(child)
-    //     }
-    //   })
-    // })
-    // socket.on('reconnect', () => {
-    //   console.log('reconnect')
-    // })
-    // state.socket = socket;
+    const socket = io('http://localhost:8080');
+    socket.emit('getBoard', state.boardName);
+    socket.on('broadcast', (msg) => {
+      if (msg.element) {
+        msg.element.forEach(element => {
+          const tool = state.toolDic[element.tool];
+          if (tool) {
+            tool.draw(element)
+          }
+        })
+      } else {
+        const tool = state.toolDic[msg.tool];
+        if (tool) {
+          tool.draw(msg)
+        }
+      }
+    })
+    socket.on('reconnect', () => {
+      console.log('reconnect')
+    })
+    state.socket = socket;
 
   }, []);
 

@@ -3,12 +3,22 @@ const server = require('../server/server').server;
 const assert = require('assert').strict;
 const Board = require('../server/Board');
 const mongoose = require('mongoose');
-let socket;
+const testData = require('./data.json');
+
+let socket1;
+let socket2;
 describe('socket', () => {
   before(done => {
     const httpAddr = server.listen().address();
-    socket = io.connect(`http://[${httpAddr.address}]:${httpAddr.port}`);
-    socket.on('connect', done)
+    socket1 = io.connect(`http://[${httpAddr.address}]:${httpAddr.port}`);
+    socket2 = io.connect(`http://[${httpAddr.address}]:${httpAddr.port}`);
+    const tryDone = () => {
+      if (socket1.connected && socket2.connected) {
+        done();
+      }
+    }
+    socket1.on('connect', tryDone)
+    socket2.on('connect', tryDone)
   })
   after(() => {
     mongoose.connection.close();
@@ -16,10 +26,24 @@ describe('socket', () => {
   })
 
   it('getBoard', (done) => {
-    socket.emit('getBoard', 'anonymous111')
-    socket.once('broadcast', data => {
+    socket1.emit('getBoard', 'anonymous')
+    socket1.once('broadcast', data => {
       assert.ok(data.elements);
       done();
     })
+  })
+  it('broadcast', (done) => {
+    socket2.emit('joinBoard', 'anonymous')
+    setTimeout(() => {
+      socket1.emit('broadcast', {
+        board: 'anonymous',
+        data: testData.element
+      })
+      socket2.once('broadcast', data => {
+        assert(data.id === testData.element.id)
+        console.log('done...')
+        done();
+      })
+    }, 100)
   })
 })

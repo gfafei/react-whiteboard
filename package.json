@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --exit",
-    "start": "webpack-dev-server --mode development"
+    "start": "webpack-dev-server --mode development",
+    "server": "set DEBUG=* & node ./server/server.js"
   },
   "author": "gfafei",
   "license": "MIT",

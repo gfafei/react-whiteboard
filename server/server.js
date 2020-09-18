@@ -22,15 +22,21 @@ io.on('connection', socket => {
   socket.on('error', noFail(error => {
     logger.error('ERROR', error)
   }))
-  socket.on('broadcast', noFail(message => {
-    //TODO
-  }))
+  socket.on('broadcast', async data => {
+    socket.broadcast.to(data.board).emit('broadcast', data.data);
+    const board = await Board.findById('anonymous').exec();
+    board.updateElement(data.data)
+  })
   socket.on('getBoard',async name => {
+    socket.join(name)
     let board = await Board.findById(name).exec();
     if (!board) {
       board = await Board.create({ _id: name })
     }
     socket.emit('broadcast', board);
+  })
+  socket.on('joinBoard', name => {
+    socket.join(name)
   })
 })
 

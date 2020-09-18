@@ -16,14 +16,16 @@ class Eraser extends Tool {
     this.label = 'Eraser';
   }
 
-  eraseElementByPoint(point) {
+  draw(data) {
+    if (data.type !== 'delete') {
+      console.error('unknown type ' + data.type);
+      return;
+    }
+    const id = data.id;
     const state = this.state;
-    const pixel = state.hitRegionContext.getImageData(point.x, point.y, 1, 1).data;
-    const color = getColorFromPixel(pixel)
-    const id = state.colorHash.get(color);
-    if (!id) return;
+    const element = this.state.elements.get(id)
+    state.colorHash.delete((element.colorKey));
     state.elements.delete(id);
-    state.colorHash.delete(color);
     clearCanvas(state.context);
     clearCanvas(state.hitRegionContext);
     state.elements.forEach(element => {
@@ -33,6 +35,24 @@ class Eraser extends Tool {
       }
       tool.draw(element);
     })
+  }
+
+  getElementByPoint(point) {
+    const state = this.state;
+    const pixel = state.hitRegionContext.getImageData(point.x, point.y, 1, 1).data;
+    const color = getColorFromPixel(pixel)
+    return state.colorHash.get(color);
+  }
+
+  eraseElementByPoint(point) {
+    const id = this.getElementByPoint(point);
+    if (id) {
+      this.drawAndSend({
+        id: id,
+        tool: this.name,
+        type: 'delete'
+      })
+    }
   }
 
   handleMouseDown(e) {
