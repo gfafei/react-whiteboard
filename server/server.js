@@ -6,7 +6,6 @@ const Logger = require('./Logger');
 const logger = new Logger('server');
 const Board = require('./Board');
 
-
 function noFail(fn) {
   return function noFailWrapped(arg) {
     try {
@@ -16,6 +15,7 @@ function noFail(fn) {
     }
   }
 }
+const boardMap = new Map();
 
 io.on('connection', socket => {
   logger.info('connection')
@@ -24,17 +24,24 @@ io.on('connection', socket => {
   }))
   socket.on('broadcast', async data => {
     socket.broadcast.to(data.board).emit('broadcast', data.data);
-    const board = await Board.findById('anonymous').exec();
+    let board = boardMap.get(data.board);
+    if (!board) {
+      board = new Board({ _id: data.board })
+    }
     board.updateElement(data.data)
   })
   socket.on('getBoard',async name => {
     socket.join(name)
-    let board = await Board.findById(name).exec();
+    let board = boardMap.get(name);
     if (!board) {
-      board = await Board.create({ _id: name })
+      board = await Board.findById(name).exec();
+      if (!board) {
+        board = new Board({_id: name});
+      }
+      boardMap.set(name, board)
     }
-    socket.emit('broadcast', board);
-  })
+    socket.emit('broadcast', board.toJSON());
+  });
   socket.on('joinBoard', name => {
     socket.join(name)
   })

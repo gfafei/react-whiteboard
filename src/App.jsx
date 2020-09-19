@@ -71,8 +71,8 @@ const App = () => {
     const socket = io('http://localhost:8080');
     socket.emit('getBoard', state.boardName);
     socket.on('broadcast', (msg) => {
-      if (msg.element) {
-        msg.element.forEach(element => {
+      if (msg.elements) {
+        Object.values(msg.elements).forEach(element => {
           const tool = state.toolDic[element.tool];
           if (tool) {
             tool.draw(element)

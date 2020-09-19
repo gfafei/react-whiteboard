@@ -23,26 +23,33 @@ BoardSchema.method({
         break;
       case 'update':
         break;
-      case 'point':
+      case 'points':
         const line = this.elements.get(message.parent);
         if (!line) {
           logger.error(`cannot find line with id ${message.parent}`);
           return;
         }
-        line.points.push(message)
+        line.points.push(...message.points)
         break;
       case 'clear':
         break;
       default:
-        this.element.set(id, message);
+        this.elements.set(id, message);
         break;
     }
     this.delaySave();
   },
   delaySave: function() {
+    if (!this.lastSaveDate) this.lastSaveDate = Date.now()
     if (this.saveTimeoutId !== undefined) clearTimeout(this.saveTimeoutId);
-    this.saveTimeoutId = setTimeout(this.save.bind(this), config.saveInterval);
-    if (Date.now() - this.lastSaveDate > config.maxSaveDelay) setTimeout(this.save.bind(this), 0);
+    this.saveTimeoutId = setTimeout(this.doSave.bind(this), config.saveInterval);
+    if (Date.now() - this.lastSaveDate > config.maxSaveDelay) {
+      this.doSave();
+    }
+  },
+  doSave: function() {
+    this.lastSaveDate = Date.now();
+    this.save();
   }
 })
 module.exports = mongoose.model('Board', BoardSchema);
