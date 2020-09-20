@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import './iconfont.css';
-import Line from './tools/line';
+import Pencil from './tools/pencil';
 import Eraser from './tools/eraser';
+import Rect from './tools/rect';
+import Clear from './tools/clear';
 import clsx from 'clsx';
 import io from 'socket.io-client';
 
@@ -62,10 +64,15 @@ const App = () => {
     hitRegionCtx.lineCap = 'round';
     hitRegionCtx.lineJoin = 'round';
     state.hitRegionContext = hitRegionCtx;
+    state.setTool = setTool;
 
-    state.toolDic['Pencil'] = new Line(state);
+    state.toolDic['Pencil'] = new Pencil(state);
     state.toolDic['Eraser'] = new Eraser(state);
+    state.toolDic['Rect'] = new Rect(state);
+    state.toolDic['Clear'] = new Clear(state);
 
+    //TODO for debug
+    window.elements = state.elements
     setTool('Pencil');
 
     const socket = io('http://localhost:8080');
@@ -140,11 +147,11 @@ const App = () => {
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
       />
-      <div className="menu-wrapper" style={{ width: 110 }}>
+      <div className="menu-wrapper">
         {
           Object.values(state.toolDic).map(tool => (
             <div key={tool.name} className={clsx('menu-item', { active: curTool === tool.name })}
-                 onClick={() => setTool(tool.name)}
+                 onClick={tool.handleClick.bind(tool)}
             >
               <i className={clsx('icon', tool.icon)}/>
               <span className="tool-name">{tool.label}</span>

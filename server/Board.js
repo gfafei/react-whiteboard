@@ -22,16 +22,24 @@ BoardSchema.method({
         this.elements.delete(id)
         break;
       case 'update':
+        const element = this.elements.get(id);
+        if (!element) {
+          logger.error(`cannot find element with id ${message.id}`);
+          return;
+        }
+        element.x2 = message.x2;
+        element.y2 = message.y2;
         break;
       case 'points':
         const line = this.elements.get(message.parent);
         if (!line) {
-          logger.error(`cannot find line with id ${message.parent}`);
+          logger.error(`cannot find element with id ${message.parent}`);
           return;
         }
         line.points.push(...message.points)
         break;
       case 'clear':
+        this.elements.clear();
         break;
       default:
         this.elements.set(id, message);

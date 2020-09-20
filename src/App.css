@@ -11,10 +11,9 @@ body {
 
 .menu-wrapper {
     position: fixed;
-    left: 0;
-    right: 0;
+    left: 50%;
     top: 10px;
-    margin: auto;
+    transform: translate(-50%, 0);
     text-align: center;
     display: flex;
     justify-content: center;

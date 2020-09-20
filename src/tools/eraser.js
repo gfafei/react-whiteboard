@@ -1,4 +1,3 @@
-import React from 'react';
 import { clearCanvas } from '../utils'
 import Tool from './tool'
 
@@ -26,15 +25,7 @@ class Eraser extends Tool {
     const element = this.state.elements.get(id)
     state.colorHash.delete((element.colorKey));
     state.elements.delete(id);
-    clearCanvas(state.context);
-    clearCanvas(state.hitRegionContext);
-    state.elements.forEach(element => {
-      const tool = state.toolDic[element.tool]
-      if (!tool) {
-        throw Error(`tool ${element.tool} does not exist`)
-      }
-      tool.draw(element);
-    })
+    this.refresh();
   }
 
   getElementByPoint(point) {

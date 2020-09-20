@@ -1,14 +1,13 @@
-import React from 'react';
 import {
   uuid,
 } from '../utils';
 import Tool from './tool';
 let lastTime = 0;
 
-class Line extends Tool {
+class Pencil extends Tool {
   constructor (state) {
     super(state)
-    state.points = [];
+    this.points = [];
     this.name = 'Pencil';
     this.cursor = 'url("pencil.svg") 5 20, auto';
     this.icon = 'icon-note';
@@ -35,6 +34,17 @@ class Line extends Tool {
       this.state.colorHash.set(line.colorKey, line.id);
     }
     stroke(this.state.hitRegionContext, line.colorKey);
+  }
+
+  updateLine() {
+    const data = {
+      tool: this.name,
+      type: 'points',
+      parent: this.curLineId,
+      points: this.points
+    }
+    this.drawAndSend(data)
+    this.points = [];
   }
 
   draw(data) {
@@ -72,31 +82,17 @@ class Line extends Tool {
   }
 
   handleMouseMove(e) {
-    this.state.points.push({ x: e.clientX, y: e.clientY });
+    this.points.push({ x: e.clientX, y: e.clientY });
     if (performance.now() - lastTime > 70) {
-      const data = {
-        tool: this.name,
-        type: 'points',
-        parent: this.curLineId,
-        points: this.state.points
-      }
-      this.drawAndSend(data)
-      this.state.points = [];
+      this.updateLine();
       lastTime = performance.now();
     }
   }
 
   handleMouseUp(e) {
-    this.state.points.push({ x: e.clientX, y: e.clientY });
-    const point = {
-      tool: this.name,
-      type: 'points',
-      parent: this.curLineId,
-      points: this.state.points
-    }
-    this.drawAndSend(point);
-    this.state.points = [];
+    this.points.push({ x: e.clientX, y: e.clientY });
+    this.updateLine();
   }
 }
 
-export default Line;
+export default Pencil;
