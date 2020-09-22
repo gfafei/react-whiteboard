@@ -1,5 +1,5 @@
 import Tool from './tool';
-import { uuid } from '../utils'
+import { uuid } from '../utils';
 
 let lastTime = 0;
 class Rect extends Tool {
@@ -35,6 +35,8 @@ class Rect extends Tool {
       ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
     }
     stroke(state.context);
+    rect.colorKey = this.getColorKey();
+    state.colorHash.set(rect.colorKey, rect.id);
     stroke(state.hitRegionContext, rect.colorKey);
   }
 
@@ -47,9 +49,8 @@ class Rect extends Tool {
       x1: e.clientX,
       y1: e.clientY,
       color: this.state.color,
-      colorKey: this.getColorKey(),
       size: this.state.size
-    })
+    });
   }
   handleMouseMove(e) {
     if (performance.now() - lastTime > 70) {

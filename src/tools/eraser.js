@@ -10,6 +10,8 @@ class Eraser extends Tool {
     this.state = state;
     this.name = 'Eraser';
     state.colorHash = new Map();
+    //TODO for debug
+    window.colorHash = state.colorHash;
     this.cursor = 'url("eraser.svg") 5 20, auto';
     this.icon = 'icon-eraser';
     this.label = 'Eraser';

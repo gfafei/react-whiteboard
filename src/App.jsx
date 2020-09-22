@@ -5,12 +5,12 @@ import Pencil from './tools/pencil';
 import Eraser from './tools/eraser';
 import Rect from './tools/rect';
 import Clear from './tools/clear';
-import clsx from 'clsx';
 import io from 'socket.io-client';
+import Format from './tools/format'
 
 const initialState = {
   boardName: 'anonymous',
-  color: '#f00056',
+  color: '#FE0000',
   size: 5,
   points: [],
   toolDic: {},
@@ -20,14 +20,22 @@ const initialState = {
   context: null,
   //选择命中区域的画布
   hitRegionContext: null,
-  socket: null
+  socket: null,
+  curTool: null
+}
+
+const useForceUpdate = () => {
+  const [, dispatch] = React.useState(Object.create(null))
+  return () => {
+    dispatch(Object.create(null))
+  }
 }
 
 const App = () => {
   const mainLayerRef = useRef(null)
   const stateRef = useRef(initialState);
   const state = stateRef.current;
-  const [curTool, setTool] = useState(null);
+  const forceUpdate = useForceUpdate();
 
   const drawElement = (ele) => {
     const tool = state.toolDic[ele.tool];
@@ -64,16 +72,21 @@ const App = () => {
     hitRegionCtx.lineCap = 'round';
     hitRegionCtx.lineJoin = 'round';
     state.hitRegionContext = hitRegionCtx;
-    state.setTool = setTool;
 
     state.toolDic['Pencil'] = new Pencil(state);
     state.toolDic['Eraser'] = new Eraser(state);
     state.toolDic['Rect'] = new Rect(state);
     state.toolDic['Clear'] = new Clear(state);
+    state.toolDic['Format'] = new Format(state);
+
+    state.curTool = 'Pencil';
+    mainLayerRef.current.style.cursor = state.toolDic[state.curTool].cursor;
+    state.forceUpdate = forceUpdate;
+    state.canvas = mainLayerRef.current;
+    forceUpdate();
 
     //TODO for debug
     window.elements = state.elements
-    setTool('Pencil');
 
     const socket = io('http://localhost:8080');
     socket.emit('getBoard', state.boardName);
@@ -99,25 +112,18 @@ const App = () => {
 
   }, []);
 
-  useEffect(() => {
-    const { toolDic } = state;
-    if (!curTool) return;
-    const tool = toolDic[curTool];
-    mainLayerRef.current.style.cursor = tool.cursor;
-  }, [curTool])
-
   const handleMouseDown = (e) => {
-    const { toolDic } = state;
+    const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
     if (!tool) {
-      throw Error(`tool ${curTool} does not exist`)
+      throw Error(`tool ${curTool} does not exist`);
     }
     state.mousePressed = true;
-    tool.handleMouseDown(e)
+    tool.handleMouseDown(e);
   }
   const handleMouseMove = (e) => {
     if (!state.mousePressed) return;
-    const { toolDic } = state;
+    const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
@@ -127,7 +133,7 @@ const App = () => {
 
   const handleMouseUp = (e) => {
     if (!state.mousePressed) return;
-    const { toolDic } = state;
+    const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
@@ -135,7 +141,6 @@ const App = () => {
     state.mousePressed = false;
     tool.handleMouseUp(e)
   }
-
   return (
     <div className="whiteboard">
       <canvas
@@ -149,14 +154,7 @@ const App = () => {
       />
       <div className="menu-wrapper">
         {
-          Object.values(state.toolDic).map(tool => (
-            <div key={tool.name} className={clsx('menu-item', { active: curTool === tool.name })}
-                 onClick={tool.handleClick.bind(tool)}
-            >
-              <i className={clsx('icon', tool.icon)}/>
-              <span className="tool-name">{tool.label}</span>
-            </div>
-          ))
+          Object.values(state.toolDic).map(tool => tool.renderNode())
         }
       </div>
     </div>

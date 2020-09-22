@@ -41,7 +41,6 @@ describe('socket', () => {
       })
       socket2.once('broadcast', data => {
         assert(data.id === testData.element.id)
-        console.log('done...')
         done();
       })
     }, 100)

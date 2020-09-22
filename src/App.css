@@ -29,6 +29,7 @@ body {
     min-width: 55px;
     cursor: default;
     color: #fff;
+    position: relative;
 }
 .menu-item:hover {
     background-color: rgba(255, 255, 255, .1);
@@ -45,4 +46,60 @@ body {
     display: block;
     color: rgba(255,255,255,0.60);
     font-size: 12px;
+}
+
+.color-indicator {
+    height: 14px;
+    width: 14px;
+    margin: 4px auto;
+    border: 1px solid #fff;
+    border-radius: 3px;
+}
+.popup {
+    background-color: rgba(29,35,42,0.9);
+    border-radius: 4px;
+    position: absolute;
+    top: 65px;
+    left: -95px;
+    display: none;
+}
+.popup.show {
+    display: block;
+}
+
+.size-wrapper {
+    display: flex;
+    height: 60px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.size-item {
+    width: 60px;
+}
+.size-inner {
+    height: 25px;
+    background-color: #fff;
+    margin: 15px auto;
+    transform: rotate(135deg);
+}
+.size-item.active .size-inner {
+    background-color: #01BDE8;
+}
+.color-wrapper {
+    display: flex;
+    height: 50px;
+    align-items: center;
+    justify-content: space-around;
+}
+.color-item {
+    padding: 3px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.color-inner {
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+}
+.color-item.active {
+    border-color: #01BDE8;
 }
