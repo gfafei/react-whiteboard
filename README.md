@@ -5,7 +5,8 @@
 - [x] 支持删除 
 - [x] shape插件化
 - [x] 前后端打通
-- [ ] 移植到会中
-- [ ] 移动端适配
+- [x] 移植到会中
+- [ ] 适配resize， scale
 - [ ] undo redo clear
 - [ ] 补全shape
+- [ ] 保存img

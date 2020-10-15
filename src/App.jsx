@@ -62,6 +62,9 @@ const App = (props = {}) => {
     state.context = mainLayerRef.current.getContext('2d');
 
     const mainCtx = state.context;
+
+    mainCtx.canvas.width = props.width;
+    mainCtx.canvas.height = props.height;
     mainCtx.lineCap = 'round';
     mainCtx.lineJoin = 'round';
     fillBackground(mainCtx, state.background);
@@ -91,7 +94,7 @@ const App = (props = {}) => {
     window.elements = state.elements
 
     const socket = io('http://localhost:8080');
-    state.boardName = props.name || 'anonymous';
+    state.boardName = props.name;
     socket.emit('getBoard', state.boardName);
     socket.on('broadcast', (msg) => {
       if (msg.elements) {
@@ -113,8 +116,18 @@ const App = (props = {}) => {
     })
     state.socket = socket;
 
+    return () => {
+      state.toolDic['Format'].onUnmount();
+    }
   }, []);
 
+  const getPos = (e) => {
+    const rect = mainLayerRef.current.getBoundingClientRect();
+    return [
+      e.pageX - rect.left,
+      e.pageY - rect.top
+    ]
+  }
   const handleMouseDown = (e) => {
     const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
@@ -122,7 +135,7 @@ const App = (props = {}) => {
       throw Error(`tool ${curTool} does not exist`);
     }
     state.mousePressed = true;
-    tool.handleMouseDown(e);
+    tool.handleMouseDown(e, ...getPos(e));
   }
   const handleMouseMove = (e) => {
     if (!state.mousePressed) return;
@@ -131,7 +144,7 @@ const App = (props = {}) => {
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
     }
-    tool.handleMouseMove(e);
+    tool.handleMouseMove(e, ...getPos(e));
   }
 
   const handleMouseUp = (e) => {
@@ -142,14 +155,14 @@ const App = (props = {}) => {
       throw Error(`tool ${curTool} does not exist`)
     }
     state.mousePressed = false;
-    tool.handleMouseUp(e)
+    tool.handleMouseUp(e, ...getPos(e))
   }
   return (
     <div className="whiteboard">
       <canvas
         ref={mainLayerRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={props.width}
+        height={props.height}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -164,4 +177,9 @@ const App = (props = {}) => {
   )
 }
 
+App.defaultProps = {
+  name: 'anonymous',
+  width: 1920,
+  height: 500
+}
 export default App;

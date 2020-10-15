@@ -40,27 +40,27 @@ class Rect extends Tool {
     stroke(state.hitRegionContext, rect.colorKey);
   }
 
-  handleMouseDown (e) {
+  handleMouseDown (e, x, y) {
     this.rectId = uuid();
     this.drawAndSend({
       tool: this.name,
       type: 'rect',
       id: this.rectId,
-      x1: e.clientX,
-      y1: e.clientY,
+      x1: x,
+      y1: y,
       color: this.state.color,
       size: this.state.size
     });
   }
-  handleMouseMove(e) {
+  handleMouseMove(e, x, y) {
     if (performance.now() - lastTime > 70) {
-      this.update({ x: e.clientX, y: e.clientY });
+      this.update({ x: x, y: y });
       lastTime = performance.now();
     }
   }
 
-  handleMouseUp (e) {
-    this.update({ x: e.clientX, y: e.clientY });
+  handleMouseUp (e, x, y) {
+    this.update({ x: x, y: y });
     this.rectId = null;
   }
 

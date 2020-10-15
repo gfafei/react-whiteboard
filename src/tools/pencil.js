@@ -66,7 +66,7 @@ class Pencil extends Tool {
     }
   }
 
-  handleMouseDown(e) {
+  handleMouseDown(e, x, y) {
     const state = this.state;
     this.curLineId = uuid();
     const line = {
@@ -76,21 +76,21 @@ class Pencil extends Tool {
       color: state.color,
       colorKey: this.getColorKey(),
       size: state.size,
-      points: [{ x: e.clientX, y: e.clientY }],
+      points: [{ x: x, y: y }],
     }
     this.drawAndSend(line);
   }
 
-  handleMouseMove(e) {
-    this.points.push({ x: e.clientX, y: e.clientY });
+  handleMouseMove(e, x, y) {
+    this.points.push({ x: x, y: y});
     if (performance.now() - lastTime > 70) {
       this.updateLine();
       lastTime = performance.now();
     }
   }
 
-  handleMouseUp(e) {
-    this.points.push({ x: e.clientX, y: e.clientY });
+  handleMouseUp(e, x, y) {
+    this.points.push({ x: x, y: y });
     this.updateLine();
   }
 }

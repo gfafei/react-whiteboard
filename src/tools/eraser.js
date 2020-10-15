@@ -48,12 +48,12 @@ class Eraser extends Tool {
     }
   }
 
-  handleMouseDown(e) {
-    this.eraseElementByPoint({ x: e.clientX, y: e.clientY });
+  handleMouseDown(e, x, y) {
+    this.eraseElementByPoint({ x: x, y: y });
   }
 
-  handleMouseMove(e) {
-    this.eraseElementByPoint({ x: e.clientX, y: e.clientY });
+  handleMouseMove(e, x, y) {
+    this.eraseElementByPoint({ x: x, y: y });
   }
 
   handleMouseUp() {}
