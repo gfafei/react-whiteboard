@@ -1,4 +1,4 @@
-import { clearCanvas, getRandomColor } from '../utils';
+import { clearCanvas, fillBackground, getRandomColor } from '../utils'
 import clsx from 'classnames';
 import React from 'react';
 
@@ -38,6 +38,7 @@ class Tool {
   refresh() {
     const state = this.state;
     clearCanvas(state.context);
+    fillBackground(state.context, state.background);
     clearCanvas(state.hitRegionContext);
     state.elements.forEach(element => {
       const tool = state.toolDic[element.tool];

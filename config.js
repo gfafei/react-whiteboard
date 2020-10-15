@@ -1,6 +1,6 @@
 
 module.exports = {
-  db: 'mongodb://localhost:27017',
+  db: 'mongodb://localhost:27017/whiteboard',
   port: 8080,
   // Save after 2 seconds of inactivity
   saveInterval: 1000 * 2,

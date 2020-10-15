@@ -11,18 +11,18 @@ class Format extends Tool {
     this.sizes = [3, 5, 9, 12, 15];
     this.colors= ['#FE0000', '#FF8A01', '#FF38C7', '#6548F6',
       '#0001FE', '#51D8EB', '#49D61E', '#000000', '#807F80'];
-    document.addEventListener('click', function() {
-      console.log('state', state.showFormat)
-      if (state.showFormat) {
+    window.addEventListener('mousedown', (e) => {
+      const btn = document.getElementById(`Format`)
+      if (!btn.contains(e.target) && state.showFormat) {
         state.showFormat = false;
         state.forceUpdate();
       }
     })
   }
 
-  handleClick() {
+  handleClick(e) {
     const state = this.state;
-    state.showFormat = true;
+    state.showFormat = !state.showFormat;
     state.forceUpdate();
   }
 

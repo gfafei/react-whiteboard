@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import './App.css';
 import './iconfont.css';
 import Pencil from './tools/pencil';
@@ -7,9 +7,10 @@ import Rect from './tools/rect';
 import Clear from './tools/clear';
 import io from 'socket.io-client';
 import Format from './tools/format'
+import { fillBackground } from './utils';
 
 const initialState = {
-  boardName: 'anonymous',
+  background: '#ffffff',
   color: '#FE0000',
   size: 5,
   points: [],
@@ -31,7 +32,7 @@ const useForceUpdate = () => {
   }
 }
 
-const App = () => {
+const App = (props = {}) => {
   const mainLayerRef = useRef(null)
   const stateRef = useRef(initialState);
   const state = stateRef.current;
@@ -63,6 +64,7 @@ const App = () => {
     const mainCtx = state.context;
     mainCtx.lineCap = 'round';
     mainCtx.lineJoin = 'round';
+    fillBackground(mainCtx, state.background);
 
     const hitRegion = document.createElement('canvas')
     hitRegion.width = mainCtx.canvas.width;
@@ -89,6 +91,7 @@ const App = () => {
     window.elements = state.elements
 
     const socket = io('http://localhost:8080');
+    state.boardName = props.name || 'anonymous';
     socket.emit('getBoard', state.boardName);
     socket.on('broadcast', (msg) => {
       if (msg.elements) {

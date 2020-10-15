@@ -17,6 +17,18 @@ function noFail(fn) {
 }
 const boardMap = new Map();
 
+const loadBoard = async (name) => {
+  if (boardMap.has(name)) {
+    return boardMap.get(name)
+  } else {
+    let board = await Board.findById(name).exec();
+    if (!board) {
+      board = new Board({ _id: name });
+    }
+    boardMap.set(name, board);
+    return board;
+  }
+}
 io.on('connection', socket => {
   logger.info('connection')
   socket.on('error', noFail(error => {
@@ -24,27 +36,17 @@ io.on('connection', socket => {
   }))
   socket.on('broadcast', async data => {
     socket.broadcast.to(data.board).emit('broadcast', data.data);
-    let board = boardMap.get(data.board);
-    if (!board) {
-      board = new Board({ _id: data.board })
-    }
+    const board = await loadBoard(data.board);
     board.updateElement(data.data)
   })
   socket.on('getBoard',async name => {
     socket.join(name)
-    let board = boardMap.get(name);
-    if (!board) {
-      board = await Board.findById(name).exec();
-      if (!board) {
-        board = new Board({_id: name});
-      }
-      boardMap.set(name, board)
-    }
+    const board = await loadBoard(name);
     socket.emit('broadcast', board.toJSON());
   });
   socket.on('joinBoard', name => {
     socket.join(name)
-  })
+  });
 })
 
 if (!module.parent) {

@@ -28,8 +28,8 @@ module.exports = {
   devtool: "eval-cheap-module-source-map",
   devServer: {
     contentBase: path.join(__dirname, "public/"),
-    port: 3000,
-    publicPath: "http://localhost:3000/dist/",
+    port: 3005,
+    publicPath: "http://localhost:3005/dist/",
     hot: true,
   },
   plugins: [
