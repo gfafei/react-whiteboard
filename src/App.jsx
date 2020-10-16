@@ -10,6 +10,7 @@ import Format from './tools/format'
 import { fillBackground } from './utils';
 
 const initialState = {
+  scale: 1,
   background: '#ffffff',
   color: '#FE0000',
   size: 5,
@@ -32,7 +33,17 @@ const useForceUpdate = () => {
   }
 }
 
-const App = (props = {}) => {
+const getScale = ({
+  width,
+  height,
+  canvasWidth,
+  canvasHeight
+}) => {
+  const scaleX = width / canvasWidth;
+  const scaleY = height / canvasHeight;
+  return Math.min(scaleX, scaleY);
+}
+const App = React.forwardRef((props, ref) => {
   const mainLayerRef = useRef(null)
   const stateRef = useRef(initialState);
   const state = stateRef.current;
@@ -60,11 +71,16 @@ const App = (props = {}) => {
 
   useEffect(() => {
     state.context = mainLayerRef.current.getContext('2d');
-
+    if (ref) {
+      ref.current = mainLayerRef.current;
+    }
     const mainCtx = state.context;
 
-    mainCtx.canvas.width = props.width;
-    mainCtx.canvas.height = props.height;
+    state.scale = getScale(props);
+    mainCtx.canvas.height = props.canvasHeight * state.scale;
+    mainCtx.canvas.width = props.canvasWidth * state.scale;
+    mainCtx.scale(state.scale, state.scale);
+
     mainCtx.lineCap = 'round';
     mainCtx.lineJoin = 'round';
     fillBackground(mainCtx, state.background);
@@ -120,12 +136,19 @@ const App = (props = {}) => {
       state.toolDic['Format'].onUnmount();
     }
   }, []);
+  React.useEffect(() => {
+    state.scale = getScale(props);
+    mainLayerRef.current.height = props.canvasHeight * state.scale;
+    mainLayerRef.current.width = props.canvasWidth * state.scale;
+    state.context.scale(state.scale, state.scale);
+    state.toolDic['Pencil'].refresh();
+  }, [props.width, props.height]);
 
-  const getPos = (e) => {
+  const getPos = (e, scale) => {
     const rect = mainLayerRef.current.getBoundingClientRect();
     return [
-      e.pageX - rect.left,
-      e.pageY - rect.top
+      (e.pageX - rect.left) / scale,
+      (e.pageY - rect.top) / scale
     ]
   }
   const handleMouseDown = (e) => {
@@ -135,7 +158,7 @@ const App = (props = {}) => {
       throw Error(`tool ${curTool} does not exist`);
     }
     state.mousePressed = true;
-    tool.handleMouseDown(e, ...getPos(e));
+    tool.handleMouseDown(e, ...getPos(e, state.scale));
   }
   const handleMouseMove = (e) => {
     if (!state.mousePressed) return;
@@ -144,7 +167,7 @@ const App = (props = {}) => {
     if (!tool) {
       throw Error(`tool ${curTool} does not exist`)
     }
-    tool.handleMouseMove(e, ...getPos(e));
+    tool.handleMouseMove(e, ...getPos(e, state.scale));
   }
 
   const handleMouseUp = (e) => {
@@ -155,14 +178,12 @@ const App = (props = {}) => {
       throw Error(`tool ${curTool} does not exist`)
     }
     state.mousePressed = false;
-    tool.handleMouseUp(e, ...getPos(e))
+    tool.handleMouseUp(e, ...getPos(e, state.scale))
   }
   return (
-    <div className="whiteboard">
+    <div className="whiteboard" style={{ width: props.width, height: props.height }}>
       <canvas
         ref={mainLayerRef}
-        width={props.width}
-        height={props.height}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -175,11 +196,13 @@ const App = (props = {}) => {
       </div>
     </div>
   )
-}
+})
 
 App.defaultProps = {
   name: 'anonymous',
-  width: 1920,
-  height: 500
+  canvasWidth: window.innerWidth,
+  canvasHeight: window.innerHeight,
+  width: window.innerWidth,
+  height: window.innerHeight
 }
 export default App;

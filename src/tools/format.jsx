@@ -22,7 +22,7 @@ class Format extends Tool {
   }
 
   onUnmount () {
-    document.removeEventListener('mousedown', this.outsideClickHandler);
+    window.removeEventListener('mousedown', this.outsideClickHandler);
   }
 
   handleClick(e) {

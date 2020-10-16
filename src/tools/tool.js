@@ -37,9 +37,9 @@ class Tool {
 
   refresh() {
     const state = this.state;
-    clearCanvas(state.context);
-    fillBackground(state.context, state.background);
-    clearCanvas(state.hitRegionContext);
+    clearCanvas(state.context, state.scale);
+    fillBackground(state.context, state.scale, state.background);
+    clearCanvas(state.hitRegionContext, state.scale);
     state.elements.forEach(element => {
       const tool = state.toolDic[element.tool];
       if (!tool) {
