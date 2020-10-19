@@ -23,6 +23,8 @@ class Pencil extends Tool {
         const point = line.points[i];
         ctx.lineTo(point.x, point.y);
       }
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round'
       ctx.lineWidth = line.size;
       ctx.strokeStyle = color || line.color;
       ctx.stroke();

@@ -7,7 +7,7 @@ import Rect from './tools/rect';
 import Clear from './tools/clear';
 import io from 'socket.io-client';
 import Format from './tools/format'
-import { fillBackground } from './utils';
+import {fillBackground, isMobile} from './utils';
 
 const initialState = {
   scale: 1,
@@ -81,24 +81,21 @@ const App = React.forwardRef((props, ref) => {
     mainCtx.canvas.width = props.canvasWidth * state.scale;
     mainCtx.scale(state.scale, state.scale);
 
-    mainCtx.lineCap = 'round';
-    mainCtx.lineJoin = 'round';
     fillBackground(mainCtx, state.background);
 
     const hitRegion = document.createElement('canvas')
     hitRegion.width = mainCtx.canvas.width;
     hitRegion.height = mainCtx.canvas.height;
-    const hitRegionCtx = hitRegion.getContext('2d');
-    hitRegionCtx.lineWidth = state.size;
-    hitRegionCtx.lineCap = 'round';
-    hitRegionCtx.lineJoin = 'round';
-    state.hitRegionContext = hitRegionCtx;
+    state.hitRegionContext = hitRegion.getContext('2d');
+
 
     state.toolDic['Pencil'] = new Pencil(state);
     state.toolDic['Eraser'] = new Eraser(state);
-    state.toolDic['Rect'] = new Rect(state);
-    state.toolDic['Clear'] = new Clear(state);
     state.toolDic['Format'] = new Format(state);
+    if (!isMobile()) {
+      state.toolDic['Rect'] = new Rect(state);
+    }
+    state.toolDic['Clear'] = new Clear(state);
 
     state.curTool = 'Pencil';
     mainLayerRef.current.style.cursor = state.toolDic[state.curTool].cursor;
@@ -137,6 +134,25 @@ const App = React.forwardRef((props, ref) => {
     }
   }, []);
   React.useEffect(() => {
+    if (!isMobile()) return;
+    const resizeHandler = () => {
+      state.scale = getScale({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        canvasWidth: props.canvasWidth,
+        canvasHeight: props.canvasHeight
+      })
+      mainLayerRef.current.height = props.canvasHeight * state.scale;
+      mainLayerRef.current.width = props.canvasWidth * state.scale;
+      state.context.scale(state.scale, state.scale);
+      state.toolDic['Pencil'].refresh();
+    }
+    window.addEventListener('resize', resizeHandler)
+    return () => {
+      window.removeEventListener('resize', resizeHandler)
+    }
+  }, [])
+  React.useEffect(() => {
     state.scale = getScale(props);
     mainLayerRef.current.height = props.canvasHeight * state.scale;
     mainLayerRef.current.width = props.canvasWidth * state.scale;
@@ -160,6 +176,34 @@ const App = React.forwardRef((props, ref) => {
     state.mousePressed = true;
     tool.handleMouseDown(e, ...getPos(e, state.scale));
   }
+  const handleTouchStart = (e) => {
+    const { toolDic, curTool } = state;
+    const tool = toolDic[curTool];
+    if (e.changedTouches.length === 1) {
+      const touch = e.changedTouches[0];
+      state.mousePressed = true;
+      tool.handleMouseDown(e, ...getPos(touch, state.scale));
+    }
+  }
+  const handleTouchMove = (e) => {
+    const { toolDic, curTool } = state;
+    const tool = toolDic[curTool];
+    if (!tool) throw Error(`tool ${curTool} does not exist`);
+    if (e.changedTouches.length !== 1) return;
+    if (!state.mousePressed) return;
+    const touch = e.changedTouches[0];
+    tool.handleMouseMove(e, ...getPos(touch, state.scale));
+  }
+  const handleTouchLeave = (e) => {
+    const { toolDic, curTool } = state;
+    const tool = toolDic[curTool];
+    if (!tool) throw Error(`tool ${curTool} does not exist`);
+    if (e.changedTouches.length !== 1) return;
+    state.mousePressed = false;
+    const touch = e.changedTouches[0];
+    tool.handleMouseUp(e, ...getPos(touch, state.scale));
+  }
+
   const handleMouseMove = (e) => {
     if (!state.mousePressed) return;
     const { toolDic, curTool } = state;
@@ -188,6 +232,10 @@ const App = React.forwardRef((props, ref) => {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchLeave}
+        onTouchCancel={handleTouchLeave}
       />
       <div className="menu-wrapper">
         {
@@ -200,8 +248,8 @@ const App = React.forwardRef((props, ref) => {
 
 App.defaultProps = {
   name: 'anonymous',
-  canvasWidth: window.innerWidth,
-  canvasHeight: window.innerHeight,
+  canvasWidth: 1600,
+  canvasHeight: 900,
   width: window.innerWidth,
   height: window.innerHeight
 }

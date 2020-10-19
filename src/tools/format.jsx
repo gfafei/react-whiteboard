@@ -1,6 +1,7 @@
 import Tool from './tool';
 import clsx from 'classnames';
 import React from 'react';
+import {isMobile} from "../utils";
 
 class Format extends Tool {
   constructor (state) {
@@ -8,9 +9,15 @@ class Format extends Tool {
     this.name = 'Format';
     this.label = 'Format';
     state.showFormat = false;
-    this.sizes = [3, 5, 9, 12, 15];
-    this.colors= ['#FE0000', '#FF8A01', '#FF38C7', '#6548F6',
-      '#0001FE', '#51D8EB', '#49D61E', '#000000', '#807F80'];
+    if (isMobile()) {
+      this.sizes = [3, 5, 9, 12];
+      this.colors = ['#FE0000', '#FF8A01', '#49d61e', '#51d8eb', '#000000'];
+    } else {
+      this.sizes = [3, 5, 9, 12, 15];
+      this.colors= ['#FE0000', '#FF8A01', '#FF38C7', '#6548F6',
+        '#0001FE', '#51D8EB', '#49D61E', '#000000', '#807F80'];
+    }
+
     this.outsideClickHandler = (e) => {
       const btn = document.getElementById(`Format`)
       if (!btn.contains(e.target) && state.showFormat) {
@@ -19,10 +26,11 @@ class Format extends Tool {
       }
     }
     window.addEventListener('mousedown', this.outsideClickHandler)
+    window.addEventListener('touchstart', this.outsideClickHandler)
   }
 
   onUnmount () {
-    window.removeEventListener('mousedown', this.outsideClickHandler);
+    window.removeEventListener('touchstart', this.outsideClickHandler);
   }
 
   handleClick(e) {
