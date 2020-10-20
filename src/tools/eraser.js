@@ -32,7 +32,7 @@ class Eraser extends Tool {
 
   getElementByPoint(point) {
     const state = this.state;
-    const pixel = state.hitRegionContext.getImageData(point.x, point.y, 1, 1).data;
+    const pixel = state.hitRegionContext.getImageData(point.x * state.scale, point.y * state.scale, 1, 1).data;
     const color = getColorFromPixel(pixel)
     return state.colorHash.get(color);
   }

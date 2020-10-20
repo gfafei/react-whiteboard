@@ -33,14 +33,12 @@ const useForceUpdate = () => {
   }
 }
 
-const getScale = ({
-  width,
-  height,
+const getScale = (size, {
   canvasWidth,
   canvasHeight
 }) => {
-  const scaleX = width / canvasWidth;
-  const scaleY = height / canvasHeight;
+  const scaleX = size.width / canvasWidth;
+  const scaleY = size.height / canvasHeight;
   return Math.min(scaleX, scaleY);
 }
 const App = React.forwardRef((props, ref) => {
@@ -48,6 +46,10 @@ const App = React.forwardRef((props, ref) => {
   const stateRef = useRef(initialState);
   const state = stateRef.current;
   const forceUpdate = useForceUpdate();
+  const [size, setSize] = React.useState({
+    width: props.width || window.innerWidth,
+    height: props.height || window.innerHeight
+  })
 
   const drawElement = (ele) => {
     const tool = state.toolDic[ele.tool];
@@ -69,25 +71,31 @@ const App = React.forwardRef((props, ref) => {
     }
   }
 
+  const resetScale = () => {
+    state.context.canvas.height = props.canvasHeight * state.scale;
+    state.context.canvas.width = props.canvasWidth * state.scale;
+    state.context.scale(state.scale, state.scale);
+
+    state.hitRegionContext.canvas.height = props.canvasHeight * state.scale;
+    state.hitRegionContext.canvas.width = props.canvasWidth * state.scale;
+    state.hitRegionContext.scale(state.scale, state.scale);
+  }
+
   useEffect(() => {
     state.context = mainLayerRef.current.getContext('2d');
     if (ref) {
       ref.current = mainLayerRef.current;
     }
     const mainCtx = state.context;
-
-    state.scale = getScale(props);
-    mainCtx.canvas.height = props.canvasHeight * state.scale;
-    mainCtx.canvas.width = props.canvasWidth * state.scale;
-    mainCtx.scale(state.scale, state.scale);
-
+    state.scale = getScale(size, props);
     fillBackground(mainCtx, state.background);
 
     const hitRegion = document.createElement('canvas')
-    hitRegion.width = mainCtx.canvas.width;
-    hitRegion.height = mainCtx.canvas.height;
+    hitRegion.style.position = 'fixed'
+    hitRegion.style.pointerEvents = 'none'
+    document.body.appendChild(hitRegion)
     state.hitRegionContext = hitRegion.getContext('2d');
-
+    resetScale();
 
     state.toolDic['Pencil'] = new Pencil(state);
     state.toolDic['Eraser'] = new Eraser(state);
@@ -105,8 +113,7 @@ const App = React.forwardRef((props, ref) => {
 
     //TODO for debug
     window.elements = state.elements
-
-    const socket = io('http://localhost:8080');
+    const socket = io(':8080');
     state.boardName = props.name;
     socket.emit('getBoard', state.boardName);
     socket.on('broadcast', (msg) => {
@@ -136,15 +143,12 @@ const App = React.forwardRef((props, ref) => {
   React.useEffect(() => {
     if (!isMobile()) return;
     const resizeHandler = () => {
-      state.scale = getScale({
+      setSize({
         width: window.innerWidth,
-        height: window.innerHeight,
-        canvasWidth: props.canvasWidth,
-        canvasHeight: props.canvasHeight
+        height: window.innerHeight
       })
-      mainLayerRef.current.height = props.canvasHeight * state.scale;
-      mainLayerRef.current.width = props.canvasWidth * state.scale;
-      state.context.scale(state.scale, state.scale);
+      state.scale = getScale(size, props)
+      resetScale();
       state.toolDic['Pencil'].refresh();
     }
     window.addEventListener('resize', resizeHandler)
@@ -153,10 +157,8 @@ const App = React.forwardRef((props, ref) => {
     }
   }, [])
   React.useEffect(() => {
-    state.scale = getScale(props);
-    mainLayerRef.current.height = props.canvasHeight * state.scale;
-    mainLayerRef.current.width = props.canvasWidth * state.scale;
-    state.context.scale(state.scale, state.scale);
+    state.scale = getScale(size, props);
+    resetScale();
     state.toolDic['Pencil'].refresh();
   }, [props.width, props.height]);
 
@@ -225,7 +227,7 @@ const App = React.forwardRef((props, ref) => {
     tool.handleMouseUp(e, ...getPos(e, state.scale))
   }
   return (
-    <div className="whiteboard" style={{ width: props.width, height: props.height }}>
+    <div className="whiteboard">
       <canvas
         ref={mainLayerRef}
         onMouseDown={handleMouseDown}
@@ -248,9 +250,9 @@ const App = React.forwardRef((props, ref) => {
 
 App.defaultProps = {
   name: 'anonymous',
-  canvasWidth: 1600,
-  canvasHeight: 900,
-  width: window.innerWidth,
-  height: window.innerHeight
+  canvasWidth: 1280,
+  canvasHeight: 720,
+  width: 0,
+  height: 0
 }
 export default App;
