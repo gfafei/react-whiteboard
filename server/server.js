@@ -49,7 +49,7 @@ io.on('connection', socket => {
   });
 })
 
-if (!require.main === module) {
+if (require.main === module) {
   server.listen(config.port);
   logger.info('server listening on ', config.port)
 }

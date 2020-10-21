@@ -11,9 +11,10 @@ db.once('open', () => {
 });
 
 const BoardSchema = new mongoose.Schema({
-  _id: { type: Object },
+  _id: { type: String },
   elements: { type: Map, default: new Map() }
 });
+
 BoardSchema.method({
   updateElement: function(message) {
     const id = message.id;
@@ -41,10 +42,17 @@ BoardSchema.method({
       case 'clear':
         this.elements.clear();
         break;
+      case 'batch':
+        if (!message._children.length) break;
+        message._children.forEach(ele => {
+          this.elements.set(ele.id, ele);
+        })
+        break;
       default:
         this.elements.set(id, message);
         break;
     }
+    this.markModified('elements');
     this.delaySave();
   },
   delaySave: function() {
