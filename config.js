@@ -5,5 +5,5 @@ module.exports = {
   // Save after 2 seconds of inactivity
   saveInterval: 1000 * 2,
   // Save after 30 seconds even if there is still activity
-  maxSaveDelay: 1000 * 30,
+  maxSaveDelay: 1000 * 3,
 }

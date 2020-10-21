@@ -52,7 +52,7 @@ BoardSchema.method({
     if (this.saveTimeoutId !== undefined) clearTimeout(this.saveTimeoutId);
     this.saveTimeoutId = setTimeout(this.doSave.bind(this), config.saveInterval);
     if (Date.now() - this.lastSaveDate > config.maxSaveDelay) {
-      this.doSave();
+      setTimeout(this.doSave.bind(this), 0);
     }
   },
   doSave: function() {

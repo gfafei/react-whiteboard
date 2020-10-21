@@ -8,6 +8,8 @@ import Clear from './tools/clear';
 import io from 'socket.io-client';
 import Format from './tools/format'
 import {fillBackground, isMobile} from './utils';
+import Undo from "./tools/undo";
+import Redo from "./tools/redo";
 
 const initialState = {
   scale: 1,
@@ -17,6 +19,9 @@ const initialState = {
   points: [],
   toolDic: {},
   elements: new Map(),
+  store: new Map(),
+  undoStack: [],
+  redoStack: [],
   mousePressed: false,
   //主画布
   context: null,
@@ -91,9 +96,6 @@ const App = React.forwardRef((props, ref) => {
     fillBackground(mainCtx, state.background);
 
     const hitRegion = document.createElement('canvas')
-    hitRegion.style.position = 'fixed'
-    hitRegion.style.pointerEvents = 'none'
-    document.body.appendChild(hitRegion)
     state.hitRegionContext = hitRegion.getContext('2d');
     resetScale();
 
@@ -103,6 +105,8 @@ const App = React.forwardRef((props, ref) => {
     if (!isMobile()) {
       state.toolDic['Rect'] = new Rect(state);
     }
+    state.toolDic['Undo'] = new Undo(state);
+    state.toolDic['Redo'] = new Redo(state);
     state.toolDic['Clear'] = new Clear(state);
 
     state.curTool = 'Pencil';
@@ -113,6 +117,7 @@ const App = React.forwardRef((props, ref) => {
 
     //TODO for debug
     window.elements = state.elements
+    window.state = state;
     const socket = io(':8080');
     state.boardName = props.name;
     socket.emit('getBoard', state.boardName);
@@ -122,12 +127,14 @@ const App = React.forwardRef((props, ref) => {
           const tool = state.toolDic[element.tool];
           if (tool) {
             tool.draw(element)
+            state.toolDic['Pencil'].cacheMessage(element);
           }
         })
       } else {
         const tool = state.toolDic[msg.tool];
         if (tool) {
           tool.draw(msg)
+          state.toolDic['Pencil'].cacheMessage(msg);
         }
       }
     })

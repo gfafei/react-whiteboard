@@ -10,3 +10,6 @@
 - [ ] undo redo clear
 - [ ] 补全shape
 - [ ] 保存img
+
+- [ ] mongoose map clear后保存无效
+- [ ] tool中state相关逻辑提取成helper

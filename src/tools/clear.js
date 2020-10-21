@@ -17,9 +17,11 @@ class Clear extends Tool {
   }
 
   handleClick() {
+    const state = this.state;
     this.drawAndSend({
       type: 'clear',
-      tool: this.name
+      tool: this.name,
+      ids: Array.from(state.elements.keys())
     })
   }
 }
