@@ -30,6 +30,7 @@ class Format extends Tool {
   }
 
   onUnmount () {
+    window.removeEventListener('mousedown', this.outsideClickHandler)
     window.removeEventListener('touchstart', this.outsideClickHandler);
   }
 

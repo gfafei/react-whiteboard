@@ -3,13 +3,23 @@ import './App.css';
 import './iconfont.css';
 import Pencil from './tools/pencil';
 import Eraser from './tools/eraser';
-import Rect from './tools/rect';
+import Rect from './tools/shape/rect';
 import Clear from './tools/clear';
 import io from 'socket.io-client';
 import Format from './tools/format'
 import {fillBackground, isMobile} from './utils';
 import Undo from "./tools/undo";
 import Redo from "./tools/redo";
+import Shape from './tools/shape';
+import Text from "./tools/text";
+import Save from "./tools/save";
+import Circle from "./tools/shape/circle";
+import Line from "./tools/shape/line";
+import Arrow from "./tools/shape/arrow";
+import Tick from "./tools/shape/tick";
+import Cross from "./tools/shape/cross";
+import Heart from "./tools/shape/heart";
+import Question from "./tools/shape/question";
 
 const initialState = {
   scale: 1,
@@ -100,14 +110,24 @@ const App = React.forwardRef((props, ref) => {
     resetScale();
 
     state.toolDic['Pencil'] = new Pencil(state);
-    state.toolDic['Eraser'] = new Eraser(state);
-    state.toolDic['Format'] = new Format(state);
     if (!isMobile()) {
       state.toolDic['Rect'] = new Rect(state);
+      state.toolDic['Circle'] = new Circle(state);
+      state.toolDic['Line'] = new Line(state);
+      state.toolDic['Arrow'] = new Arrow(state);
+      state.toolDic['Tick'] = new Tick(state);
+      state.toolDic['Cross'] = new Cross(state);
+      state.toolDic['Heart'] = new Heart(state);
+      state.toolDic['Question'] = new Question(state);
+      state.toolDic['Shape'] = new Shape(state);
     }
+    state.toolDic['Text'] = new Text(state);
+    state.toolDic['Format'] = new Format(state);
+    state.toolDic['Eraser'] = new Eraser(state);
     state.toolDic['Undo'] = new Undo(state);
     state.toolDic['Redo'] = new Redo(state);
     state.toolDic['Clear'] = new Clear(state);
+    state.toolDic['Save'] = new Save(state);
 
     state.curTool = 'Pencil';
     mainLayerRef.current.style.cursor = state.toolDic[state.curTool].cursor;

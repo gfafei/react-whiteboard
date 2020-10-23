@@ -1,5 +1,5 @@
-import Tool from './tool';
-import { uuid } from '../utils';
+import Tool from '../tool';
+import { uuid } from '../../utils';
 
 let lastTime = 0;
 class Rect extends Tool {
@@ -82,6 +82,10 @@ class Rect extends Tool {
       default:
         throw Error('unknown type')
     }
+  }
+
+  renderNode() {
+    return null;
   }
 }
 

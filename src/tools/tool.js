@@ -44,6 +44,7 @@ class Tool {
     clearCanvas(state.context, state.scale);
     fillBackground(state.context, state.scale, state.background);
     clearCanvas(state.hitRegionContext, state.scale);
+    state.colorHash.clear();
     state.elements.forEach(element => {
       const tool = state.toolDic[element.tool];
       if (!tool) {

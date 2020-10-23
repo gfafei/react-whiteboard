@@ -15,9 +15,7 @@ body {
 
 .menu-wrapper {
     position: fixed;
-    left: 50%;
     top: 10px;
-    transform: translate(-50%, 0);
     text-align: center;
     display: flex;
     justify-content: center;
@@ -111,4 +109,32 @@ body {
 }
 .color-item.active {
     border-color: #01BDE8;
+}
+.shape-row {
+    display: flex;
+}
+.shape-row:not(:last-child) {
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.shape-row .tool-item {
+    width: 40px;
+    padding: 10px 0;
+}
+.shape-row .tool-item:hover {
+    background-color: rgba(255, 255, 255, .1);
+}
+.shape-row .tool-item.active {
+    color: #01BDE8;
+}
+#Eraser::before,
+#Save::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    height: 40px;
+    width: 1px;
+    background-color: rgba(255, 255, 255, .2);
 }
