@@ -105,7 +105,7 @@ const App = React.forwardRef((props, ref) => {
     state.scale = getScale(size, props);
     fillBackground(mainCtx, state.background);
 
-    const hitRegion = document.createElement('canvas')
+    const hitRegion = document.createElement('canvas');
     state.hitRegionContext = hitRegion.getContext('2d');
     resetScale();
 

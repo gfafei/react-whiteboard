@@ -138,3 +138,14 @@ body {
     width: 1px;
     background-color: rgba(255, 255, 255, .2);
 }
+
+#textToolInput {
+    position: absolute;
+    border: 1px dashed #eee;
+    outline: none;
+    background-color: transparent;
+    caret-color: #000;
+    color: transparent;
+    padding: 0;
+    width: 240px;
+}

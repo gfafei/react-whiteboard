@@ -9,8 +9,10 @@
 - [x] 适配resize， scale
 - [x] undo redo clear
 - [x] 补全shape
-- [ ] 保存img
+- [x] 保存img
+
 - [ ] 支持url加载页面
+- [ ] 处理文本溢出
 - [ ] tool中state相关逻辑提取成helper
 - [ ] 减少点的传输体积
 - [ ] 国际化

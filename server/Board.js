@@ -28,8 +28,12 @@ BoardSchema.method({
           logger.error(`cannot find element with id ${message.id}`);
           return;
         }
-        element.x2 = message.x2;
-        element.y2 = message.y2;
+        if (element.type === 'text') {
+          element.txt = message.txt;
+        } else {
+          element.x2 = message.x2;
+          element.y2 = message.y2;
+        }
         break;
       case 'points':
         const line = this.elements.get(message.parent);
