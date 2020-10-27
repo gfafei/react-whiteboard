@@ -23,14 +23,25 @@ class Text extends Tool {
     if (e.target === this.$input) return;
     const state = this.state;
     const size = state.size * 4 * state.scale;
-    const pos = { x, y };
+    const pos = { x: e.pageX, y: e.pageY };
+    const rect = state.context.canvas.getBoundingClientRect();
+    const INPUT_WIDTH = 240;
+
     this.stopEdit();
 
-    if (pos.x)
+    if (pos.x + INPUT_WIDTH > rect.right) {
+      pos.x = rect.right - INPUT_WIDTH;
+    }
+    if (pos.y + 20 < rect.top) {
+      pos.y = rect.top - 20;
+    }
+    if (pos.y + 8 > rect.bottom) {
+      pos.y = rect.bottom - 8;
+    }
     this.$input.value = '';
     this.$input.style.fontSize = `${size}px`;
-    this.$input.style.left = `${e.pageX}px`;
-    this.$input.style.top = `${e.pageY - size + 2}px`;
+    this.$input.style.left = `${pos.x}px`;
+    this.$input.style.top = `${pos.y - size + 2}px`;
 
     this.curText = {
       tool: 'Text',
@@ -38,8 +49,8 @@ class Text extends Tool {
       id: uuid(),
       color: state.color,
       size: state.size,
-      x: x,
-      y: y
+      x: (pos.x - rect.left) / state.scale,
+      y: (pos.y - rect.top) / state.scale
     }
     this.drawAndSend(this.curText);
     this.startEdit();
