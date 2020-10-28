@@ -103,6 +103,8 @@ const App = React.forwardRef((props, ref) => {
     if (ref) {
       ref.current = mainLayerRef.current;
     }
+    state.visitor = props.visitor;
+    state.owner = props.owner;
     const mainCtx = state.context;
     state.scale = getScale(size, props);
     const hitRegion = document.createElement('canvas');
@@ -127,8 +129,9 @@ const App = React.forwardRef((props, ref) => {
     state.toolDic['Eraser'] = new Eraser(state);
     state.toolDic['Undo'] = new Undo(state);
     state.toolDic['Redo'] = new Redo(state);
-    if (props.visitor !== props.visitor)
-    state.toolDic['Clear'] = new Clear(state);
+    if (props.visitor === props.owner) {
+      state.toolDic['Clear'] = new Clear(state);
+    }
     state.toolDic['Save'] = new Save(state);
 
     state.curTool = 'Pencil';
@@ -140,7 +143,7 @@ const App = React.forwardRef((props, ref) => {
     //TODO for debug
     window.elements = state.elements
     window.state = state;
-    const socket = io(':8080');
+    const socket = io(props.socketUri);
     state.boardName = props.name;
     socket.emit('getBoard', state.boardName);
     socket.on('broadcast', (msg) => {
@@ -304,7 +307,8 @@ App.defaultProps = {
   name: 'anonymous',
   width: window.innerWidth,
   height: window.innerHeight,
-  hideToolbar: false
+  hideToolbar: false,
+  socketUri: ':8080'
 }
 
 export default App;

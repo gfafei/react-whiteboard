@@ -36,7 +36,10 @@ class Eraser extends Tool {
 
   eraseElementByPoint(point) {
     const id = this.getElementByPoint(point);
-    if (id) {
+    const state = this.state;
+    if (!id) return;
+    const element = state.elements.get(id);
+    if (state.visitor === state.owner || state.visitor === element.creator) {
       this.drawAndSend({
         id: id,
         tool: this.name,

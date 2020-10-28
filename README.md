@@ -13,7 +13,7 @@
 
 - [x] 支持url加载页面
 - [x] 处理文本溢出
-- [ ] visitor权限
+- [x] visitor权限
 - [ ] tool中state相关逻辑提取成helper
 - [ ] 减少点的传输体积
 - [ ] 国际化

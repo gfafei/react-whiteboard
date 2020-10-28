@@ -31,6 +31,9 @@ class Tool {
   }
 
   drawAndSend(data, skipAction) {
+    if (this.state.visitor) {
+      data.creator = this.state.visitor;
+    }
     const tool = this.state.toolDic[data.tool];
     tool.draw(data);
     if (!skipAction) {
