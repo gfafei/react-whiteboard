@@ -6,6 +6,7 @@ import Eraser from './tools/eraser';
 import Rect from './tools/shape/rect';
 import Clear from './tools/clear';
 import io from 'socket.io-client';
+import lan from './lan';
 import Format from './tools/format'
 import {fillBackground, isMobile, debounce, isIframe} from './utils';
 import PropTypes from 'prop-types';
@@ -105,6 +106,7 @@ const App = React.forwardRef((props, ref) => {
     }
     state.visitor = props.visitor;
     state.owner = props.owner;
+    state.i18n = lan(props.lang);
     const mainCtx = state.context;
     state.scale = getScale(size, props);
     const hitRegion = document.createElement('canvas');

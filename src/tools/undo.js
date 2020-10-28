@@ -28,7 +28,7 @@ class Undo extends Tool {
            onClick={this.handleClick.bind(this)}
       >
         <i className={clsx('icon', this.icon)}/>
-        <span className="tool-name">{this.label}</span>
+        <span className="tool-name">{state.i18n(this.name)}</span>
       </div>
     )
   }

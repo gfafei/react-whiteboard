@@ -49,7 +49,7 @@ class Format extends Tool {
          onClick={this.handleClick.bind(this)}
       >
         <div className="color-indicator" style={{ backgroundColor: state.color }}/>
-        <span className="tool-name">{this.label}</span>
+        <span className="tool-name">{state.i18n(this.name)}</span>
         <div className={clsx('popup', { show: state.showFormat })}>
           <div className="size-wrapper">
             {
