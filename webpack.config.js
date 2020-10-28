@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/index.jsx",
   mode: "development",
   module: {
     rules: [
@@ -22,18 +22,20 @@ module.exports = {
   resolve: { extensions: ["*", ".js", ".jsx"] },
   output: {
     path: path.resolve(__dirname, "dist/"),
-    publicPath: "/dist/",
     filename: "bundle.js"
   },
   devtool: "eval-cheap-module-source-map",
   devServer: {
     contentBase: path.join(__dirname, "public/"),
     port: 3005,
-    publicPath: "http://localhost:3005/dist/",
+    publicPath: "http://localhost:3005/",
     hot: true,
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: 'React from Scratch',
+      template: 'public/index.html'
+    }),
   ]
 };

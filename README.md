@@ -11,7 +11,7 @@
 - [x] 补全shape
 - [x] 保存img
 
-- [ ] 支持url加载页面
+- [x] 支持url加载页面
 - [x] 处理文本溢出
 - [ ] visitor权限
 - [ ] tool中state相关逻辑提取成helper

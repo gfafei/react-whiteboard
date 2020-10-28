@@ -7,7 +7,9 @@ import Rect from './tools/shape/rect';
 import Clear from './tools/clear';
 import io from 'socket.io-client';
 import Format from './tools/format'
-import {fillBackground, isMobile} from './utils';
+import {fillBackground, isMobile, debounce, isIframe} from './utils';
+import PropTypes from 'prop-types';
+import clsx from 'classnames';
 import Undo from "./tools/undo";
 import Redo from "./tools/redo";
 import Shape from './tools/shape';
@@ -49,11 +51,11 @@ const useForceUpdate = () => {
 }
 
 const getScale = (size, {
-  canvasWidth,
-  canvasHeight
+  width,
+  height
 }) => {
-  const scaleX = size.width / canvasWidth;
-  const scaleY = size.height / canvasHeight;
+  const scaleX = size.width / width;
+  const scaleY = size.height / height;
   return Math.min(scaleX, scaleY);
 }
 const App = React.forwardRef((props, ref) => {
@@ -62,9 +64,9 @@ const App = React.forwardRef((props, ref) => {
   const state = stateRef.current;
   const forceUpdate = useForceUpdate();
   const [size, setSize] = React.useState({
-    width: props.width || window.innerWidth,
-    height: props.height || window.innerHeight
-  })
+    width: props.containerWidth || window.innerWidth,
+    height: props.containerHeight || window.innerHeight
+  });
 
   const drawElement = (ele) => {
     const tool = state.toolDic[ele.tool];
@@ -87,12 +89,12 @@ const App = React.forwardRef((props, ref) => {
   }
 
   const resetScale = () => {
-    state.context.canvas.height = props.canvasHeight * state.scale;
-    state.context.canvas.width = props.canvasWidth * state.scale;
+    state.context.canvas.height = props.height * state.scale;
+    state.context.canvas.width = props.width * state.scale;
     state.context.scale(state.scale, state.scale);
 
-    state.hitRegionContext.canvas.height = props.canvasHeight * state.scale;
-    state.hitRegionContext.canvas.width = props.canvasWidth * state.scale;
+    state.hitRegionContext.canvas.height = props.height * state.scale;
+    state.hitRegionContext.canvas.width = props.width * state.scale;
     state.hitRegionContext.scale(state.scale, state.scale);
   }
 
@@ -103,11 +105,10 @@ const App = React.forwardRef((props, ref) => {
     }
     const mainCtx = state.context;
     state.scale = getScale(size, props);
-    fillBackground(mainCtx, state.background);
-
     const hitRegion = document.createElement('canvas');
     state.hitRegionContext = hitRegion.getContext('2d');
     resetScale();
+    fillBackground(mainCtx, state.scale, state.background);
 
     state.toolDic['Pencil'] = new Pencil(state);
     if (!isMobile()) {
@@ -126,6 +127,7 @@ const App = React.forwardRef((props, ref) => {
     state.toolDic['Eraser'] = new Eraser(state);
     state.toolDic['Undo'] = new Undo(state);
     state.toolDic['Redo'] = new Redo(state);
+    if (props.visitor !== props.visitor)
     state.toolDic['Clear'] = new Clear(state);
     state.toolDic['Save'] = new Save(state);
 
@@ -162,32 +164,44 @@ const App = React.forwardRef((props, ref) => {
       console.log('reconnect')
     })
     state.socket = socket;
-
+    document.title = state.boardName;
     return () => {
       state.toolDic['Format'].onUnmount();
+      state.toolDic['Shape'].onUnmount();
     }
   }, []);
   React.useEffect(() => {
-    if (!isMobile()) return;
-    const resizeHandler = () => {
+    if (!isMobile() && isIframe()) return;
+    const resizeHandler = debounce(() => {
+      state.scale = getScale({
+        width: window.innerWidth,
+        height: window.innerHeight
+      }, props)
       setSize({
         width: window.innerWidth,
         height: window.innerHeight
       })
-      state.scale = getScale(size, props)
       resetScale();
       state.toolDic['Pencil'].refresh();
-    }
+    }, 80)
     window.addEventListener('resize', resizeHandler)
     return () => {
       window.removeEventListener('resize', resizeHandler)
     }
   }, [])
-  React.useEffect(() => {
-    state.scale = getScale(size, props);
+  useEffect(() => {
+    if (!isIframe()) return;
+    setSize({
+      width: props.containerWidth,
+      height: props.containerHeight
+    });
+    state.scale = getScale({
+      width: props.containerWidth,
+      height: props.containerHeight
+    }, props);
     resetScale();
     state.toolDic['Pencil'].refresh();
-  }, [props.width, props.height]);
+  }, [props.containerWidth, props.containerHeight]);
 
   const getPos = (e, scale) => {
     const rect = mainLayerRef.current.getBoundingClientRect();
@@ -266,7 +280,7 @@ const App = React.forwardRef((props, ref) => {
         onTouchEnd={handleTouchLeave}
         onTouchCancel={handleTouchLeave}
       />
-      <div className="menu-wrapper">
+      <div className={clsx('menu-wrapper', { hide: props.hideToolbar })}>
         {
           Object.values(state.toolDic).map(tool => tool.renderNode())
         }
@@ -275,11 +289,22 @@ const App = React.forwardRef((props, ref) => {
   )
 })
 
+App.propsTypes = {
+  name: PropTypes.string,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  containerWidth: PropTypes.number,
+  containerHeight: PropTypes.number,
+  owner: PropTypes.string,
+  visitor: PropTypes.string,
+  lang: PropTypes.string,
+  hideToolbar: PropTypes.bool
+}
 App.defaultProps = {
   name: 'anonymous',
-  canvasWidth: 1280,
-  canvasHeight: 720,
-  width: 0,
-  height: 0
+  width: window.innerWidth,
+  height: window.innerHeight,
+  hideToolbar: false
 }
+
 export default App;

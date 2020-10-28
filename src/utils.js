@@ -35,3 +35,21 @@ export const isMobile = () => {
 
   return result
 }
+export const isIframe = () => {
+  return window.parent !== window;
+}
+export const getQueryParam = (key) => {
+  const match = location.search.match(new RegExp('[\?\&]' + key + '=([^\&]*)(\&?)'));
+  return match ? match[1] : match;
+}
+
+export function debounce(fn, ms) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer)
+    const context = this
+    timer = setTimeout(function () {
+      fn.apply(context, args)
+    }, ms)
+  }
+}

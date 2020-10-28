@@ -61,7 +61,7 @@ class Cross extends Tool {
     stroke(state.context);
     cross.colorKey = this.getColorKey();
     state.colorHash.set(cross.colorKey, cross.id);
-    stroke(state.hitRegionContext, state.colorKey);
+    stroke(state.hitRegionContext, cross.colorKey);
   }
 
   draw(data) {

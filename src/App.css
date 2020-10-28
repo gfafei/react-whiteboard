@@ -126,6 +126,9 @@ body {
 .shape-row .tool-item.active {
     color: #01BDE8;
 }
+.hide {
+    display: none;
+}
 #Eraser::before,
 #Save::before {
     content: "";

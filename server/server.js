@@ -1,4 +1,5 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const config = require('../config');
@@ -48,7 +49,8 @@ io.on('connection', socket => {
     socket.join(name)
   });
 })
-
+app.use(express.static('public'));
+app.use(express.static('dist'));
 if (require.main === module) {
   server.listen(config.port);
   logger.info('server listening on ', config.port)
