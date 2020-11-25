@@ -21,7 +21,7 @@ class Shape extends Tool {
   }
 
   onUnmount() {
-    window.removeEventListener('touchstart', this.outsideClickHandler);
+    window.removeEventListener('mousedown', this.outsideClickHandler);
     window.removeEventListener('touchstart', this.outsideClickHandler);
   }
 

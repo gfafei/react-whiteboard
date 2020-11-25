@@ -195,7 +195,6 @@ const App = React.forwardRef((props, ref) => {
     }
   }, [])
   useEffect(() => {
-    if (!isIframe()) return;
     setSize({
       width: props.containerWidth,
       height: props.containerHeight

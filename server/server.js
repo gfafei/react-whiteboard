@@ -51,6 +51,17 @@ io.on('connection', socket => {
 })
 app.use(express.static('public'));
 app.use(express.static('dist'));
+app.use(express.json());
+
+app.post('/boards/delete', async function(req, res) {
+  const boards = req.body.boards;
+  if (!Array.isArray(boards)) {
+    return res.status(400).send('params error: borads should be id array')
+  }
+  const queryRes = await Board.deleteMany({ _id: { $in: boards } });
+  res.json({deletedCount: queryRes.deletedCount})
+});
+
 if (require.main === module) {
   server.listen(config.port);
   logger.info('server listening on ', config.port)

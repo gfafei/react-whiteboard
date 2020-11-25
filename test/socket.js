@@ -1,7 +1,6 @@
 const io = require('socket.io-client');
 const server = require('../server/server').server;
 const assert = require('assert').strict;
-const Board = require('../server/Board');
 const mongoose = require('mongoose');
 const testData = require('./data.json');
 
