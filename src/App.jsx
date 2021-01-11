@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './App.css';
 import './iconfont.css';
+import config from '../config';
 import Pencil from './tools/pencil';
 import Eraser from './tools/eraser';
 import Rect from './tools/shape/rect';
@@ -306,10 +307,12 @@ App.propsTypes = {
 }
 App.defaultProps = {
   name: 'anonymous',
+  containerWidth: window.innerWidth,
+  containerHeight: window.innerHeight,
   width: window.innerWidth,
   height: window.innerHeight,
   hideToolbar: false,
-  socketUri: ':8080'
+  socketUri: `${config.host}:${config.port}`
 }
 
 export default App;
