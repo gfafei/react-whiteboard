@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {path: '/socket'});
 const config = require('../config');
 const Logger = require('./Logger');
 const logger = new Logger('server');

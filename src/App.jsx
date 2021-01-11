@@ -143,10 +143,10 @@ const App = React.forwardRef((props, ref) => {
     state.canvas = mainLayerRef.current;
     forceUpdate();
 
-    //TODO for debug
-    window.elements = state.elements
-    window.state = state;
-    const socket = io(props.socketUri);
+    const socket = io({
+      transport: ['websocket'],
+      path: '/whiteboard/socket'
+    });
     state.boardName = props.name;
     socket.emit('getBoard', state.boardName);
     socket.on('broadcast', (msg) => {
@@ -311,8 +311,7 @@ App.defaultProps = {
   containerHeight: window.innerHeight,
   width: window.innerWidth,
   height: window.innerHeight,
-  hideToolbar: false,
-  socketUri: `${config.host}:${config.port}`
+  hideToolbar: false
 }
 
 export default App;

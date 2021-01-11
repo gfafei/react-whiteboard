@@ -1,4 +1,5 @@
 const isDev = process.env.NODE_ENV === 'develop'
+
 module.exports = {
   host: isDev ? 'localhost' : 'https://go.ketianyun.com/whiteboard',
   db: isDev ?
