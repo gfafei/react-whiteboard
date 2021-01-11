@@ -144,7 +144,7 @@ const App = React.forwardRef((props, ref) => {
     forceUpdate();
 
     const socket = io({
-      transport: ['websocket'],
+      transports: ['websocket'],
       path: '/whiteboard/socket'
     });
     state.boardName = props.name;
