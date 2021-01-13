@@ -31,6 +31,7 @@ const initialState = {
   size: 5,
   points: [],
   toolDic: {},
+  tools: [],
   elements: new Map(),
   store: new Map(),
   undoStack: [],
@@ -115,27 +116,47 @@ const App = React.forwardRef((props, ref) => {
     fillBackground(mainCtx, state.scale, state.background);
 
     state.toolDic['Pencil'] = new Pencil(state);
-    if (!isMobile()) {
-      state.toolDic['Rect'] = new Rect(state);
-      state.toolDic['Circle'] = new Circle(state);
-      state.toolDic['Line'] = new Line(state);
-      state.toolDic['Arrow'] = new Arrow(state);
-      state.toolDic['Tick'] = new Tick(state);
-      state.toolDic['Cross'] = new Cross(state);
-      state.toolDic['Heart'] = new Heart(state);
-      state.toolDic['Question'] = new Question(state);
-      state.toolDic['Shape'] = new Shape(state);
-    }
+    state.toolDic['Rect'] = new Rect(state);
+    state.toolDic['Circle'] = new Circle(state);
+    state.toolDic['Line'] = new Line(state);
+    state.toolDic['Arrow'] = new Arrow(state);
+    state.toolDic['Tick'] = new Tick(state);
+    state.toolDic['Cross'] = new Cross(state);
+    state.toolDic['Heart'] = new Heart(state);
+    state.toolDic['Question'] = new Question(state);
+    state.toolDic['Shape'] = new Shape(state);
     state.toolDic['Text'] = new Text(state);
     state.toolDic['Format'] = new Format(state);
     state.toolDic['Eraser'] = new Eraser(state);
     state.toolDic['Undo'] = new Undo(state);
     state.toolDic['Redo'] = new Redo(state);
-    if (props.visitor === props.owner) {
-      state.toolDic['Clear'] = new Clear(state);
-    }
+    state.toolDic['Clear'] = new Clear(state);
     state.toolDic['Save'] = new Save(state);
-
+    if (!isMobile()) {
+      state.tools.push(
+        'Pencil',
+        'Rect',
+        'Circle',
+        'Line',
+        'Arrow',
+        'Tick',
+        'Cross',
+        'Heart',
+        'Question',
+        'Shape'
+      )
+    }
+    state.tools.push(
+      'Text',
+      'Format',
+      'Eraser',
+      'Undo',
+      'Redo'
+    )
+    if (props.visitor === props.owner) {
+      state.tools.push('Clear')
+    }
+    state.tools.push('Save')
     state.curTool = 'Pencil';
     mainLayerRef.current.style.cursor = state.toolDic[state.curTool].cursor;
     state.forceUpdate = forceUpdate;
@@ -286,7 +307,7 @@ const App = React.forwardRef((props, ref) => {
       />
       <div className={clsx('menu-wrapper', { hide: props.hideToolbar })}>
         {
-          Object.values(state.toolDic).map(tool => tool.renderNode())
+          state.tools.map(name => state.toolDic[name].renderNode())
         }
       </div>
     </div>

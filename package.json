@@ -5,7 +5,7 @@
   "main": "src/index.jsx",
   "scripts": {
     "test": "mocha --exit",
-    "start": "webpack-dev-server --host 0.0.0.0 --mode development",
+    "start": "webpack-dev-server --mode development",
     "server": "node ./server/server.js",
     "server-dev": "cross-env NODE_ENV=develop node ./server/server.js",
     "build": "webpack"
