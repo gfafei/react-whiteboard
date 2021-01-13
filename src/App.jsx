@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './App.css';
 import './iconfont.css';
-import config from '../config';
 import Pencil from './tools/pencil';
 import Eraser from './tools/eraser';
 import Rect from './tools/shape/rect';

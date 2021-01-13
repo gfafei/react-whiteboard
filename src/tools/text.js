@@ -19,16 +19,35 @@ class Text extends Tool {
     this.textBlurHandler = this.handleBlur.bind(this);
   }
 
-  handleMouseDown(e, x, y) {
+  handleMouseDown(e)  {
     if (e.target === this.$input) return;
+    this.stopEdit();
+    this.prepareText(e.pageX, e.pageY)
+    this.drawAndSend(this.curText);
+    this.startEdit();
+    e.preventDefault();
+  }
+
+  startEdit() {
+    if (!this.$input.parentNode) {
+      document.querySelector('.whiteboard').appendChild(this.$input);
+    }
+    this.$input.focus();
+    this.$input.addEventListener('keyup', this.textChangeHandler);
+    this.$input.addEventListener('blur', this.textBlurHandler);
+  }
+
+  stopEdit() {
+    this.$input.removeEventListener('keyup', this.textChangeHandler);
+    this.$input.removeEventListener('blur', this.textBlurHandler);
+  }
+
+  prepareText(x, y) {
+    const pos = { x, y }
     const state = this.state;
     const size = state.size * 4 * state.scale;
-    const pos = { x: e.pageX, y: e.pageY };
     const rect = state.context.canvas.getBoundingClientRect();
     const INPUT_WIDTH = 240;
-
-    this.stopEdit();
-
     if (pos.x + INPUT_WIDTH > rect.right) {
       pos.x = rect.right - INPUT_WIDTH;
     }
@@ -52,46 +71,39 @@ class Text extends Tool {
       x: (pos.x - rect.left) / state.scale,
       y: (pos.y - rect.top) / state.scale
     }
-    this.drawAndSend(this.curText);
-    this.startEdit();
-    e.preventDefault();
   }
-
-  startEdit() {
-    if (!this.$input.parentNode) {
-      document.querySelector('.whiteboard').appendChild(this.$input);
-    }
-    this.$input.focus();
-    this.$input.addEventListener('keyup', this.textChangeHandler);
-    this.$input.addEventListener('blur', this.textBlurHandler);
-  }
-
-  stopEdit() {
-    this.$input.removeEventListener('keyup', this.textChangeHandler);
-    this.$input.removeEventListener('blur', this.textBlurHandler);
-  }
-
   handleTextChange(e) {
     if (e.which === 13) {
-
+      const rect = this.$input.getBoundingClientRect();
+      const canvasRect = this.state.context.canvas.getBoundingClientRect();
+      if (rect.bottom > canvasRect.bottom - 10) {
+        return
+      }
+      this.stopEdit();
+      this.prepareText(rect.left, rect.top + this.state.size * 8)
+      this.drawAndSend(this.curText)
+      this.startEdit()
     } else if (e.which === 27) {
       this.stopEdit();
       this.$input.style.top = '-10000px';
-    }
-    if (performance.now() - lastSent > 100) {
-      if (this.$input.value !== this.curText.txt) {
-        this.drawAndSend({
-          tool: this.name,
-          type: 'update',
-          id: this.curText.id,
-          txt: this.$input.value
-        })
-        this.curText.txt = this.$input.value;
-        lastSent = performance.now();
-      }
     } else {
-      clearTimeout(this.curText.timeout);
-      this.curText.timeout = setTimeout(this.textChangeHandler, 500, e);
+      if (performance.now() - lastSent > 100) {
+        console.log(this.$input.value)
+        console.log(this.curText)
+        if (this.$input.value !== this.curText.txt) {
+          this.drawAndSend({
+            tool: this.name,
+            type: 'update',
+            id: this.curText.id,
+            txt: this.$input.value
+          })
+          this.curText.txt = this.$input.value;
+          lastSent = performance.now();
+        }
+      } else {
+        clearTimeout(this.curText.timeout);
+        this.curText.timeout = setTimeout(this.textChangeHandler, 500, e);
+      }
     }
   }
 

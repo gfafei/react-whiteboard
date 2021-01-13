@@ -30,6 +30,7 @@ module.exports = {
     port: 3005,
     publicPath: "http://localhost:3005/",
     hot: true,
+    open: true
   },
   plugins: [
     new CleanWebpackPlugin(),
