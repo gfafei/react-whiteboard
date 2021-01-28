@@ -7,7 +7,6 @@
     "test": "mocha --exit",
     "start": "webpack-dev-server --mode development",
     "server": "node ./server/server.js",
-    "server-dev": "cross-env NODE_ENV=develop node ./server/server.js",
     "build": "webpack"
   },
   "author": "gfafei",
@@ -21,6 +20,8 @@
     "clsx": "^1.1.1",
     "cross-env": "^7.0.3",
     "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "dotenv-webpack": "^6.0.0",
     "express": "^4.17.1",
     "html-webpack-plugin": "^4.4.1",
     "mocha": "^8.1.3",

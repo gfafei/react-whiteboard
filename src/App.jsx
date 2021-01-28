@@ -165,7 +165,7 @@ const App = React.forwardRef((props, ref) => {
 
     const socket = io({
       transports: ['websocket'],
-      path: '/whiteboard/socket'
+      path: process.env.SOCKET_CLIENT_PATH
     });
     state.boardName = props.name;
     socket.emit('getBoard', state.boardName);
@@ -190,7 +190,6 @@ const App = React.forwardRef((props, ref) => {
       console.log('reconnect')
     })
     state.socket = socket;
-    document.title = state.boardName;
     return () => {
       state.toolDic['Format'].onUnmount();
       state.toolDic['Shape'].onUnmount();
