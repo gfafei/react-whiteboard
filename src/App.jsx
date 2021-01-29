@@ -132,9 +132,10 @@ const App = React.forwardRef((props, ref) => {
     state.toolDic['Redo'] = new Redo(state);
     state.toolDic['Clear'] = new Clear(state);
     state.toolDic['Save'] = new Save(state);
+
+    state.tools.push('Pencil')
     if (!isMobile()) {
       state.tools.push(
-        'Pencil',
         'Rect',
         'Circle',
         'Line',
@@ -326,6 +327,7 @@ App.propsTypes = {
 }
 App.defaultProps = {
   name: 'anonymous',
+  lang: 'zh',
   containerWidth: window.innerWidth,
   containerHeight: window.innerHeight,
   width: window.innerWidth,

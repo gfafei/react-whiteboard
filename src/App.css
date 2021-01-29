@@ -129,6 +129,12 @@ body {
 .hide {
     display: none;
 }
+@media screen and (max-width: 414px) {
+    .menu-item {
+        min-width: 42px;
+    }
+}
+
 #Eraser::before,
 #Save::before {
     content: "";
