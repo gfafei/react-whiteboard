@@ -20,7 +20,7 @@ class Format extends Tool {
 
     this.outsideClickHandler = (e) => {
       const btn = document.getElementById(`Format`)
-      if (!btn.contains(e.target) && state.showFormat) {
+      if (btn && !btn.contains(e.target) && state.showFormat) {
         state.showFormat = false;
         state.forceUpdate();
       }

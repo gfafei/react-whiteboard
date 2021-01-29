@@ -11,7 +11,7 @@ class Shape extends Tool {
     state.showShape = false;
     this.outsideClickHandler = (e) => {
       const btn = document.getElementById('Shape')
-      if (!btn.contains(e.target) && state.showShape) {
+      if (btn && !btn.contains(e.target) && state.showShape) {
         state.showShape = false;
         state.forceUpdate();
       }
