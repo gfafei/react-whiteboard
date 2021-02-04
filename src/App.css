@@ -129,6 +129,15 @@ body {
 .hide {
     display: none;
 }
+.log {
+    position: absolute;
+    top: 20%;
+    left: 20px;
+    bottom: 20%;
+    overflow: auto;
+    list-style: none;
+}
+
 @media screen and (max-width: 414px) {
     .menu-item {
         min-width: 42px;

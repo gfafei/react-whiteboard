@@ -22,7 +22,16 @@ class Text extends Tool {
   handleMouseDown(e)  {
     if (e.target === this.$input) return;
     this.stopEdit();
-    this.prepareText(e.pageX, e.pageY)
+    let x, y
+    if (e.type === 'touchstart') {
+      const touch = e.touches[0]
+      x = touch.pageX
+      y = touch.pageY
+    } else {
+      x = e.pageX
+      y = e.pageY
+    }
+    this.prepareText(x, y)
     this.drawAndSend(this.curText);
     this.startEdit();
     e.preventDefault();
@@ -88,8 +97,6 @@ class Text extends Tool {
       this.$input.style.top = '-10000px';
     } else {
       if (performance.now() - lastSent > 100) {
-        console.log(this.$input.value)
-        console.log(this.curText)
         if (this.$input.value !== this.curText.txt) {
           this.drawAndSend({
             tool: this.name,

@@ -164,7 +164,7 @@ const App = React.forwardRef((props, ref) => {
     state.canvas = mainLayerRef.current;
     forceUpdate();
 
-    const socket = io({
+    const socket = io(location.hostname + ':' + process.env.PORT, {
       transports: ['websocket'],
       path: process.env.SOCKET_CLIENT_PATH
     });
@@ -236,6 +236,7 @@ const App = React.forwardRef((props, ref) => {
     ]
   }
   const handleMouseDown = (e) => {
+    e.preventDefault()
     const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
     if (!tool) {
@@ -245,6 +246,7 @@ const App = React.forwardRef((props, ref) => {
     tool.handleMouseDown(e, ...getPos(e, state.scale));
   }
   const handleTouchStart = (e) => {
+    e.preventDefault()
     const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
     if (e.changedTouches.length === 1) {
@@ -254,6 +256,7 @@ const App = React.forwardRef((props, ref) => {
     }
   }
   const handleTouchMove = (e) => {
+    e.preventDefault()
     const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
     if (!tool) throw Error(`tool ${curTool} does not exist`);
@@ -273,6 +276,7 @@ const App = React.forwardRef((props, ref) => {
   }
 
   const handleMouseMove = (e) => {
+    e.preventDefault()
     if (!state.mousePressed) return;
     const { toolDic, curTool } = state;
     const tool = toolDic[curTool];
@@ -292,19 +296,33 @@ const App = React.forwardRef((props, ref) => {
     state.mousePressed = false;
     tool.handleMouseUp(e, ...getPos(e, state.scale))
   }
+  React.useEffect(() => {
+    const el = mainLayerRef.current
+    const listeners = {}
+    if (isMobile()) {
+      listeners['touchstart'] = handleTouchStart
+      listeners['touchmove'] = handleTouchMove
+      listeners['touchend'] = handleTouchLeave
+      listeners['touchcancel'] = handleTouchLeave
+    } else {
+      listeners['mousedown'] = handleMouseDown
+      listeners['mouseup'] = handleMouseUp
+      listeners['mousemove'] = handleMouseMove
+      listeners['mouseleave'] = handleMouseUp
+    }
+    for (let e in listeners) {
+      el.addEventListener(e, listeners[e], {passive: false})
+    }
+
+    return () => {
+      for (let e in listeners) {
+        el.removeEventListener(e, listeners[e])
+      }
+    }
+  })
   return (
     <div className="whiteboard">
-      <canvas
-        ref={mainLayerRef}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchLeave}
-        onTouchCancel={handleTouchLeave}
-      />
+      <canvas ref={mainLayerRef} />
       <div className={clsx('menu-wrapper', { hide: props.hideToolbar })}>
         {
           state.tools.map(name => state.toolDic[name].renderNode())

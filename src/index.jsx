@@ -20,4 +20,8 @@ if (visitor) props.visitor = visitor;
 if (lang) props.lang = lang;
 if (hideToolbar) props.hideToolbar = (hideToolbar === 'true');
 
+document.addEventListener('gesturestart', function (event) {
+  event.preventDefault()
+})
+
 ReactDOM.render(<App {...props} />, document.getElementById('root'));
