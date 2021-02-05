@@ -164,7 +164,7 @@ const App = React.forwardRef((props, ref) => {
     state.canvas = mainLayerRef.current;
     forceUpdate();
 
-    const socket = io(location.hostname + ':' + process.env.PORT, {
+    const socket = io({
       transports: ['websocket'],
       path: process.env.SOCKET_CLIENT_PATH
     });
