@@ -57,7 +57,7 @@ app.use(express.json());
 app.post('/boards/delete', async function(req, res) {
   const boards = req.body.boards;
   if (!Array.isArray(boards)) {
-    return res.status(400).send('params error: borads should be id array')
+    return res.status(400).send('params error: boards should be id array')
   }
   const queryRes = await Board.deleteMany({ _id: { $in: boards } });
   res.json({deletedCount: queryRes.deletedCount})
