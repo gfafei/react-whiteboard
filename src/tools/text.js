@@ -88,8 +88,10 @@ class Text extends Tool {
       if (rect.bottom > canvasRect.bottom - 10) {
         return
       }
+      const state = this.state
+      const inputHeight = state.size * 4 * state.scale + 6
       this.stopEdit();
-      this.prepareText(rect.left, rect.top + this.state.size * 8)
+      this.prepareText(rect.left, rect.top + inputHeight)
       this.drawAndSend(this.curText)
       this.startEdit()
     } else if (e.which === 27) {
