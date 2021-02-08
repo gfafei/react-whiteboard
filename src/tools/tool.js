@@ -178,11 +178,9 @@ class Tool {
         break;
       case 'batch':
         const ids = action.payload;
-        const children = [];
         ids.forEach((id) => {
           msg = state.store.get(id);
           if (!msg) throw Error('cannot find element in action');
-          children.push(msg);
           const tool = state.toolDic[msg.tool];
           tool.draw(msg);
           if (msg._children) {
@@ -193,7 +191,7 @@ class Tool {
         })
         state.socket.emit('broadcast', {
           board: state.boardName,
-          data: { type: 'batch', _children: children }
+          data: {type: 'batch', _children: ids }
         });
         break;
       case 'draw':

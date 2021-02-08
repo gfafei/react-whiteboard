@@ -180,6 +180,20 @@ const App = React.forwardRef((props, ref) => {
           }
         })
       } else {
+        if (msg.type === 'batch' && msg._children) {
+          msg._children.forEach(id => {
+            const m = state.store.get(id)
+            if (!m) throw Error('cannot find element in action')
+            const tool = state.toolDic[m.tool]
+            tool.draw(m)
+            if (m._children) {
+              m._children.forEach(c => {
+                tool.draw(c)
+              })
+            }
+          })
+          return
+        }
         const tool = state.toolDic[msg.tool];
         if (tool) {
           tool.draw(msg)
@@ -319,7 +333,7 @@ const App = React.forwardRef((props, ref) => {
         el.removeEventListener(e, listeners[e])
       }
     }
-  })
+  }, [])
   return (
     <div className="whiteboard">
       <canvas ref={mainLayerRef} />
