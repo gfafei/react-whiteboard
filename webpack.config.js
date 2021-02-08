@@ -30,7 +30,6 @@ module.exports = {
     port: 3005,
     publicPath: "http://localhost:3005/",
     hot: true,
-    host:'0.0.0.0',
     disableHostCheck: true,
     open: true
   },
